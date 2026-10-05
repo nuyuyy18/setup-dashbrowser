@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>DashBrowser</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="logo-box"><div class="logo">⚡</div><span>DashBrowser</span></div>
+      <button class="t-btn" id="btn-hide-sidebar" title="Hide Sidebar">◀</button>
+    </div>
+    <div class="p-header">
+      <span>PROFILES</span>
+      <button id="btn-add-p" class="btn-mini">+ Add</button>
+    </div>
+    <input type="text" id="search-input" class="search-box" placeholder="Search...">
+    <div class="p-list" id="profiles-list"></div>
+    <div class="nav-bottom">
+      <div class="nav-btn" id="nav-exts">🧩 Extension Library</div>
+    </div>
+  </aside>
+
+  <!-- Main View -->
+  <main class="main">
+    <!-- Browser Workspace -->
+    <div id="view-browser" class="browser-box">
+      <div class="tab-strip">
+        <button class="t-btn" id="btn-toggle-sidebar" title="Toggle Sidebar">☰</button>
+        <div class="pill"><div class="avatar-sm" id="pill-avatar">A</div><span id="pill-name"></span></div>
+        <div class="tabs" id="tabs"></div>
+        <button id="btn-new-tab" class="btn-add-tab">+</button>
+      </div>
+      <div class="toolbar">
+        <div class="nav-btns">
+          <button id="btn-nav-back" class="t-btn">◀</button>
+          <button id="btn-nav-forward" class="t-btn">▶</button>
+          <button id="btn-nav-reload" class="t-btn">🔄</button>
+        </div>
+        <div class="omnibox">
+          <span>🔒</span>
+          <input type="text" id="url-input" placeholder="Search or type URL...">
+        </div>
+        <div class="tool-actions">
+          <button id="btn-clear-data" class="t-btn" title="Clear Data">🧹</button>
+          <button id="btn-edit-profile" class="t-btn" title="Edit Profile">⚙️</button>
+          <button id="btn-del-profile" class="t-btn" title="Delete Profile" style="color:#ef4444;">🗑️</button>
+        </div>
+      </div>
+      <div class="viewport" id="webviews"></div>
+    </div>
+
+    <!-- Extensions Workspace -->
+    <div id="view-exts" class="ext-box" style="display:none;">
+      <div class="ext-head">
+        <h2>Extension Library</h2>
+        <div style="display:flex;gap:8px;">
+          <button id="btn-back-browser" class="btn btn-sec">🌐 Browser</button>
+          <button id="btn-imp-folder" class="btn btn-sec">📁 Folder</button>
+          <button id="btn-imp-zip" class="btn btn-pri">📦 ZIP/CRX</button>
+        </div>
+      </div>
+      <div class="grid" id="ext-grid"></div>
+    </div>
+  </main>
+
+  <!-- Modal -->
+  <div class="modal-bg" id="modal">
+    <div class="modal">
+      <div class="m-head"><b id="m-title">Profile Settings</b><button class="t-btn" id="btn-close-modal">✕</button></div>
+      <div class="m-body">
+        <input type="hidden" id="field-id">
+        <label>Account Name</label>
+        <input type="text" id="field-name" class="input" required>
+        <label>Start URL</label>
+        <input type="url" id="field-starturl" class="input" value="https://www.google.com">
+        <label>Proxy Protocol</label>
+        <select id="field-proxy-type" class="input">
+          <option value="none">Direct (No Proxy)</option>
+          <option value="http">HTTP / HTTPS</option>
+          <option value="socks5">SOCKS5</option>
+        </select>
+        <div style="display:flex;gap:8px;">
+          <input type="text" id="field-proxy-host" class="input" placeholder="Host/IP" style="flex:2;">
+          <input type="number" id="field-proxy-port" class="input" placeholder="Port" style="flex:1;">
+        </div>
+        <label>Attached Extensions</label>
+        <div class="ext-checks" id="modal-exts" style="max-height:90px;overflow-y:auto;"></div>
+      </div>
+      <div class="m-foot">
+        <button id="btn-save-profile" class="btn btn-pri">Save Profile</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>

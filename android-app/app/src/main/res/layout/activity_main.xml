@@ -1,0 +1,492 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#0d0e12">
+
+    <!-- Top Apple HIG Toolbar -->
+    <LinearLayout
+        android:id="@+id/top_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_alignParentTop="true"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="8dp"
+        android:background="#16181d">
+
+        <!-- Sidebar Toggle -->
+        <Button
+            android:id="@+id/btn_toggle_sidebar"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:text="☰"
+            android:textColor="#ffffff"
+            android:textSize="14sp"
+            android:background="#242831"
+            android:layout_marginEnd="6dp" />
+
+        <!-- Navigation Buttons -->
+        <Button
+            android:id="@+id/btn_nav_back"
+            android:layout_width="28dp"
+            android:layout_height="30dp"
+            android:text="◀"
+            android:textColor="#9ca3af"
+            android:textSize="11sp"
+            android:background="#242831"
+            android:layout_marginEnd="3dp" />
+
+        <Button
+            android:id="@+id/btn_nav_forward"
+            android:layout_width="28dp"
+            android:layout_height="30dp"
+            android:text="▶"
+            android:textColor="#9ca3af"
+            android:textSize="11sp"
+            android:background="#242831"
+            android:layout_marginEnd="3dp" />
+
+        <Button
+            android:id="@+id/btn_nav_reload"
+            android:layout_width="28dp"
+            android:layout_height="30dp"
+            android:text="⟳"
+            android:textColor="#9ca3af"
+            android:textSize="12sp"
+            android:background="#242831"
+            android:layout_marginEnd="6dp" />
+
+        <!-- URL Input Field -->
+        <EditText
+            android:id="@+id/input_url"
+            android:layout_width="0dp"
+            android:layout_height="34dp"
+            android:layout_weight="1"
+            android:background="#0d0e12"
+            android:textColor="#ffffff"
+            android:textColorHint="#6b7280"
+            android:hint="Ketik URL atau cari di web..."
+            android:textSize="12sp"
+            android:paddingHorizontal="10dp"
+            android:singleLine="true"
+            android:imeOptions="actionGo"
+            android:inputType="textUri" />
+
+        <Button
+            android:id="@+id/btn_go"
+            android:layout_width="40dp"
+            android:layout_height="32dp"
+            android:text="Go"
+            android:textColor="#ffffff"
+            android:textSize="11sp"
+            android:background="#0A84FF"
+            android:layout_marginStart="4dp" />
+
+        <View
+            android:layout_width="1dp"
+            android:layout_height="20dp"
+            android:background="#2d333f"
+            android:layout_marginHorizontal="6dp" />
+
+        <!-- Top Action Buttons (Clean Apple Text Style) -->
+        <Button
+            android:id="@+id/btn_top_vpn"
+            android:layout_width="wrap_content"
+            android:layout_height="32dp"
+            android:text="Proxy/VPN"
+            android:textColor="#38bdf8"
+            android:textSize="11.5sp"
+            android:background="@android:color/transparent"
+            android:paddingHorizontal="6dp"
+            android:minWidth="0dp"
+            android:minHeight="0dp" />
+
+        <Button
+            android:id="@+id/btn_top_inject"
+            android:layout_width="wrap_content"
+            android:layout_height="32dp"
+            android:text="Inject"
+            android:textColor="#f59e0b"
+            android:textSize="11.5sp"
+            android:background="@android:color/transparent"
+            android:paddingHorizontal="6dp"
+            android:minWidth="0dp"
+            android:minHeight="0dp" />
+
+        <Button
+            android:id="@+id/btn_top_spreadsheet"
+            android:layout_width="wrap_content"
+            android:layout_height="32dp"
+            android:text="Sheet"
+            android:textColor="#10b981"
+            android:textSize="11.5sp"
+            android:background="@android:color/transparent"
+            android:paddingHorizontal="6dp"
+            android:minWidth="0dp"
+            android:minHeight="0dp" />
+
+        <Button
+            android:id="@+id/btn_top_logs"
+            android:layout_width="wrap_content"
+            android:layout_height="32dp"
+            android:text="Laporan"
+            android:textColor="#60a5fa"
+            android:textSize="11.5sp"
+            android:background="@android:color/transparent"
+            android:paddingHorizontal="6dp"
+            android:minWidth="0dp"
+            android:minHeight="0dp" />
+
+        <Button
+            android:id="@+id/btn_top_hermes"
+            android:layout_width="wrap_content"
+            android:layout_height="32dp"
+            android:text="🤖 AI"
+            android:textColor="#38bdf8"
+            android:textSize="11.5sp"
+            android:background="@android:color/transparent"
+            android:paddingHorizontal="6dp"
+            android:minWidth="0dp"
+            android:minHeight="0dp" />
+
+        <Button
+            android:id="@+id/btn_toggle_theme"
+            android:layout_width="wrap_content"
+            android:layout_height="32dp"
+            android:text="☀️"
+            android:textColor="#ffffff"
+            android:textSize="13sp"
+            android:background="@android:color/transparent"
+            android:paddingHorizontal="6dp"
+            android:minWidth="0dp"
+            android:minHeight="0dp" />
+    </LinearLayout>
+
+    <!-- Loading Progress Bar -->
+    <ProgressBar
+        android:id="@+id/page_progress"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="3dp"
+        android:layout_below="@id/top_toolbar"
+        android:indeterminate="false"
+        android:max="100"
+        android:progressDrawable="@android:color/holo_blue_light"
+        android:visibility="gone" />
+
+    <!-- Main Workspace Area -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/page_progress"
+        android:orientation="horizontal">
+
+        <!-- Left Collapsible Sidebar -->
+        <LinearLayout
+            android:id="@+id/sidebar_panel"
+            android:layout_width="220dp"
+            android:layout_height="match_parent"
+            android:background="#13151a"
+            android:orientation="vertical"
+            android:padding="8dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="6dp">
+
+                <TextView
+                    android:id="@+id/txt_sidebar_title"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="PROFIL LOKAL"
+                    android:textColor="#9ca3af"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
+
+                <Button
+                    android:id="@+id/btn_add_profile"
+                    android:layout_width="wrap_content"
+                    android:layout_height="26dp"
+                    android:text="+ Tambah"
+                    android:textColor="#ffffff"
+                    android:textSize="10sp"
+                    android:background="#0A84FF"
+                    android:paddingHorizontal="6dp" />
+            </LinearLayout>
+
+            <!-- Search Profile -->
+            <EditText
+                android:id="@+id/input_search_profile"
+                android:layout_width="match_parent"
+                android:layout_height="28dp"
+                android:background="#1a1d24"
+                android:textColor="#ffffff"
+                android:textColorHint="#6b7280"
+                android:hint="Cari profil..."
+                android:textSize="11sp"
+                android:paddingHorizontal="8dp"
+                android:singleLine="true"
+                android:layout_marginBottom="6dp" />
+
+            <!-- Profile List Container -->
+            <ScrollView
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1">
+                <LinearLayout
+                    android:id="@+id/profiles_list_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" />
+            </ScrollView>
+
+            <!-- Active Profile Status Card -->
+            <LinearLayout
+                android:id="@+id/card_active_profile"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#1a1d24"
+                android:orientation="vertical"
+                android:padding="8dp"
+                android:layout_marginTop="4dp">
+                
+                <TextView
+                    android:id="@+id/txt_active_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Main Account"
+                    android:textColor="#ffffff"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/txt_active_details"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="0 Cookie Aktif · Lokal GPU"
+                    android:textColor="#9ca3af"
+                    android:textSize="10sp"
+                    android:layout_marginTop="2dp" />
+            </LinearLayout>
+
+            <!-- Hermes & 9router Section in Sidebar -->
+            <LinearLayout
+                android:id="@+id/card_hermes_router"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#161b22"
+                android:orientation="vertical"
+                android:padding="8dp"
+                android:layout_marginTop="6dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:id="@+id/txt_hermes_title"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="🤖 HERMES &amp; 9ROUTER"
+                        android:textColor="#38bdf8"
+                        android:textSize="10sp"
+                        android:textStyle="bold" />
+
+                    <Button
+                        android:id="@+id/btn_hermes_setup"
+                        android:layout_width="wrap_content"
+                        android:layout_height="24dp"
+                        android:text="⚙ Setup"
+                        android:textColor="#ffffff"
+                        android:textSize="9.5sp"
+                        android:background="#242831"
+                        android:paddingHorizontal="6dp" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/txt_hermes_model"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Model: gpt-4o · Lokal"
+                    android:textColor="#9ca3af"
+                    android:textSize="9.5sp"
+                    android:layout_marginTop="2dp" />
+
+                <Button
+                    android:id="@+id/btn_hermes_copilot"
+                    android:layout_width="match_parent"
+                    android:layout_height="28dp"
+                    android:text="⚡ Perintah AI Copilot"
+                    android:textColor="#ffffff"
+                    android:textSize="10sp"
+                    android:background="#0A84FF"
+                    android:layout_marginTop="5dp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="8dp">
+
+                    <Button
+                        android:id="@+id/btn_close_session"
+                        android:layout_width="0dp"
+                        android:layout_height="28dp"
+                        android:layout_weight="1"
+                        android:text="🔒 Tutup Sesi"
+                        android:textColor="#ff6b6b"
+                        android:textSize="9sp"
+                        android:background="#1a1a2e" />
+
+                    <Button
+                        android:id="@+id/btn_auto_close"
+                        android:layout_width="0dp"
+                        android:layout_height="28dp"
+                        android:layout_weight="1"
+                        android:text="⏱ Auto-close: OFF"
+                        android:textColor="#fbbf24"
+                        android:textSize="9sp"
+                        android:background="#1a1a2e"
+                        android:layout_marginStart="4dp" />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Right Main Viewport: Real Native Hardware Accelerated Browser -->
+        <FrameLayout
+            android:id="@+id/webview_container"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="#000000">
+
+            <WebView
+                android:id="@+id/native_webview"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+        </FrameLayout>
+    </LinearLayout>
+
+    <!-- Flying Action Button (FAB) & Mini Tracking Panel (Bottom Right) -->
+    <LinearLayout
+        android:id="@+id/fab_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_margin="12dp"
+        android:orientation="vertical"
+        android:gravity="end">
+
+        <!-- Tracking Popover Dialog (Hidden by Default) -->
+        <LinearLayout
+            android:id="@+id/fab_sheet"
+            android:layout_width="260dp"
+            android:layout_height="wrap_content"
+            android:background="#1c1f26"
+            android:orientation="vertical"
+            android:padding="10dp"
+            android:layout_marginBottom="6dp"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="📝 Catat Laporan Posting"
+                android:textColor="#ffffff"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="6dp" />
+
+            <EditText
+                android:id="@+id/fab_input_post_url"
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:background="#0d0e12"
+                android:textColor="#ffffff"
+                android:textColorHint="#6b7280"
+                android:hint="Link postingan/video..."
+                android:textSize="11sp"
+                android:paddingHorizontal="6dp"
+                android:singleLine="true"
+                android:layout_marginBottom="4dp" />
+
+            <Spinner
+                android:id="@+id/fab_spinner_action"
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:background="#0d0e12"
+                android:layout_marginBottom="4dp" />
+
+            <EditText
+                android:id="@+id/fab_input_note"
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:background="#0d0e12"
+                android:textColor="#ffffff"
+                android:textColorHint="#6b7280"
+                android:hint="Catatan komentar..."
+                android:textSize="11sp"
+                android:padding="6dp"
+                android:gravity="top"
+                android:layout_marginBottom="6dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="end">
+
+                <Button
+                    android:id="@+id/fab_btn_hide_all"
+                    android:layout_width="wrap_content"
+                    android:layout_height="26dp"
+                    android:text="Hide"
+                    android:textColor="#9ca3af"
+                    android:textSize="10sp"
+                    android:background="#242831"
+                    android:layout_marginEnd="4dp" />
+
+                <Button
+                    android:id="@+id/fab_btn_cancel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="26dp"
+                    android:text="Batal"
+                    android:textColor="#9ca3af"
+                    android:textSize="10sp"
+                    android:background="#242831"
+                    android:layout_marginEnd="4dp" />
+
+                <Button
+                    android:id="@+id/fab_btn_submit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="26dp"
+                    android:text="Simpan"
+                    android:textColor="#ffffff"
+                    android:textSize="10sp"
+                    android:background="#0A84FF" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- The Floating Trigger Button -->
+        <Button
+            android:id="@+id/fab_main_button"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:text="⚡ Catat Laporan"
+            android:textColor="#ffffff"
+            android:textSize="11sp"
+            android:background="#0A84FF"
+            android:paddingHorizontal="12dp" />
+    </LinearLayout>
+
+</RelativeLayout>

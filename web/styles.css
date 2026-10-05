@@ -1,0 +1,291 @@
+/* Apple macOS Design Tokens & System Material */
+:root {
+  --apple-bg: #0d0e12;
+  --apple-sidebar: rgba(22, 24, 29, 0.78);
+  --apple-toolbar: rgba(26, 29, 36, 0.72);
+  --apple-surface: rgba(32, 36, 45, 0.65);
+  --apple-surface-hover: rgba(255, 255, 255, 0.08);
+  --apple-border: rgba(255, 255, 255, 0.09);
+  --apple-border-subtle: rgba(255, 255, 255, 0.05);
+  
+  --apple-blue: #0A84FF;
+  --apple-blue-hover: #0071E3;
+  --apple-green: #30D158;
+  --apple-red: #FF453A;
+  --apple-amber: #FF9F0A;
+  
+  --apple-text-primary: #FFFFFF;
+  --apple-text-secondary: rgba(255, 255, 255, 0.65);
+  --apple-text-muted: rgba(255, 255, 255, 0.42);
+}
+
+/* Light Theme Variables (macOS Light Appearance) */
+body.theme-light {
+  --apple-bg: #F5F5F7;
+  --apple-sidebar: #EBEBF0;
+  --apple-toolbar: #FFFFFF;
+  --apple-surface: #FFFFFF;
+  --apple-surface-hover: rgba(0, 0, 0, 0.05);
+  --apple-border: rgba(0, 0, 0, 0.12);
+  --apple-border-subtle: rgba(0, 0, 0, 0.07);
+  
+  --apple-blue: #0071E3;
+  --apple-blue-hover: #0077ED;
+  --apple-green: #34C759;
+  --apple-red: #FF3B30;
+  --apple-amber: #FF9500;
+  
+  --apple-text-primary: #1D1D1F;
+  --apple-text-secondary: #515154;
+  --apple-text-muted: #86868B;
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", system-ui, sans-serif;
+  background-color: var(--apple-bg);
+  color: var(--apple-text-primary);
+  letter-spacing: -0.01em;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+/* Light Theme Global Overrides for Crisp Contrast */
+body.theme-light .text-white { color: #1D1D1F !important; }
+body.theme-light .text-white\/95 { color: #1D1D1F !important; }
+body.theme-light .text-white\/90 { color: #1D1D1F !important; }
+body.theme-light .text-white\/80 { color: #333336 !important; }
+body.theme-light .text-white\/75 { color: #424245 !important; }
+body.theme-light .text-white\/70 { color: #515154 !important; }
+body.theme-light .text-white\/65 { color: #515154 !important; }
+body.theme-light .text-white\/60 { color: #6E6E73 !important; }
+body.theme-light .text-white\/55 { color: #6E6E73 !important; }
+body.theme-light .text-white\/50 { color: #6E6E73 !important; }
+body.theme-light .text-white\/45 { color: #86868B !important; }
+body.theme-light .text-white\/40 { color: #86868B !important; }
+body.theme-light .text-white\/35 { color: #A1A1A6 !important; }
+body.theme-light .text-white\/30 { color: #A1A1A6 !important; }
+
+/* Light Theme Backgrounds */
+body.theme-light .bg-black { background-color: #F5F5F7 !important; }
+body.theme-light .bg-\[\#0d0e12\] { background-color: #F5F5F7 !important; }
+body.theme-light .bg-\[\#090a0d\] { background-color: #FAFAFC !important; }
+body.theme-light .bg-\[\#0b0c10\] { background-color: #FFFFFF !important; }
+body.theme-light .bg-black\/20 { background-color: #F0F0F2 !important; }
+body.theme-light .bg-black\/40 { background-color: #FFFFFF !important; }
+body.theme-light .bg-black\/50 { background-color: #FFFFFF !important; }
+body.theme-light .bg-black\/60 { background-color: #FFFFFF !important; }
+body.theme-light .bg-black\/70 { background-color: #F5F5F7 !important; }
+body.theme-light .bg-white\/\[0\.04\], body.theme-light .bg-white\/\[0\.05\], body.theme-light .bg-white\/\[0\.06\] { background-color: #E8E8ED !important; }
+
+/* Light Theme Borders */
+body.theme-light .border-white\/\[0\.08\], 
+body.theme-light .border-white\/\[0\.06\], 
+body.theme-light .border-white\/\[0\.05\], 
+body.theme-light .border-white\/10, 
+body.theme-light .border-white\/15, 
+body.theme-light .border-white\/20 { 
+  border-color: rgba(0, 0, 0, 0.12) !important; 
+}
+
+/* Light Theme Inputs */
+body.theme-light input, body.theme-light textarea, body.theme-light select {
+  background-color: #FFFFFF !important;
+  color: #1D1D1F !important;
+  border-color: rgba(0, 0, 0, 0.15) !important;
+}
+body.theme-light input::placeholder, body.theme-light textarea::placeholder {
+  color: #86868B !important;
+}
+
+/* macOS Frosted Blur */
+.mac-blur {
+  background: var(--apple-toolbar);
+  backdrop-filter: blur(28px) saturate(190%);
+  -webkit-backdrop-filter: blur(28px) saturate(190%);
+}
+
+.mac-sidebar {
+  background: var(--apple-sidebar);
+  backdrop-filter: blur(28px) saturate(190%);
+  -webkit-backdrop-filter: blur(28px) saturate(190%);
+}
+
+.mac-card {
+  background: var(--apple-surface);
+  border: 1px solid var(--apple-border);
+  border-radius: 12px;
+}
+
+body.theme-light .mac-card {
+  background: #FFFFFF;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+/* macOS Control Buttons */
+.mac-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 10px;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 6px;
+  border: 1px solid var(--apple-border);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--apple-text-primary);
+  cursor: pointer;
+  transition: all 0.12s ease;
+  user-select: none;
+}
+
+body.theme-light .mac-btn {
+  background: #FFFFFF;
+  border-color: rgba(0, 0, 0, 0.15);
+  color: #1D1D1F;
+}
+
+.mac-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+body.theme-light .mac-btn:hover {
+  background: #F5F5F7;
+  border-color: rgba(0, 0, 0, 0.25);
+}
+
+.mac-btn:active {
+  transform: scale(0.97);
+}
+
+.mac-btn-primary {
+  background: var(--apple-blue) !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  color: #FFFFFF !important;
+}
+
+.mac-btn-primary:hover {
+  background: var(--apple-blue-hover) !important;
+}
+
+.mac-btn-success {
+  background: rgba(48, 209, 88, 0.16) !important;
+  border-color: rgba(48, 209, 88, 0.35) !important;
+  color: #30D158 !important;
+}
+
+body.theme-light .mac-btn-success {
+  background: #E8F7EC !important;
+  border-color: #34C759 !important;
+  color: #248A3D !important;
+}
+
+.mac-btn-danger {
+  background: rgba(255, 69, 58, 0.16) !important;
+  border-color: rgba(255, 69, 58, 0.35) !important;
+  color: #FF453A !important;
+}
+
+body.theme-light .mac-btn-danger {
+  background: #FEECEB !important;
+  border-color: #FF3B30 !important;
+  color: #D70015 !important;
+}
+
+/* Badges */
+body.theme-light .bg-emerald-950\/80, body.theme-light .bg-emerald-950 {
+  background-color: #E8F7EC !important;
+  border-color: #34C759 !important;
+  color: #248A3D !important;
+}
+
+body.theme-light .bg-cyan-950 {
+  background-color: #EBF8FE !important;
+  border-color: #0071E3 !important;
+  color: #0071E3 !important;
+}
+
+body.theme-light .bg-rose-950 {
+  background-color: #FEECEB !important;
+  border-color: #FF3B30 !important;
+  color: #D70015 !important;
+}
+
+/* macOS Segmented Switcher */
+.mac-segmented {
+  display: inline-flex;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--apple-border-subtle);
+  border-radius: 7px;
+  padding: 2px;
+  gap: 2px;
+}
+
+body.theme-light .mac-segmented {
+  background: #E5E5EA;
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+.mac-segmented button {
+  padding: 3px 12px;
+  border-radius: 5px;
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--apple-text-secondary);
+  transition: all 0.15s ease;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.mac-segmented button.active {
+  background: rgba(255, 255, 255, 0.14);
+  color: var(--apple-text-primary);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+body.theme-light .mac-segmented button.active {
+  background: #FFFFFF;
+  color: #1D1D1F;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+/* Sidebar transition */
+#sidebar {
+  transition: width 0.22s cubic-bezier(0.16, 1, 0.3, 1), margin-left 0.22s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.18s ease;
+}
+
+#sidebar.collapsed {
+  width: 0px !important;
+  min-width: 0px !important;
+  margin-left: -1px;
+  padding: 0 !important;
+  opacity: 0;
+  pointer-events: none;
+  border-right: none;
+}
+
+/* Hide broken or empty image alt text overlay */
+#vp-screen:not([src]), #vp-screen[src=""] {
+  display: none !important;
+}
+
+/* Smooth popover */
+#fab-action-panel {
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  transform-origin: bottom right;
+}
+
+#fab-action-panel.fab-hidden {
+  opacity: 0;
+  transform: scale(0.94) translateY(8px);
+  pointer-events: none;
+}

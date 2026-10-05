@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DashBrowser · Pengelola Multi-Akun Stealth</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-[#0d0e12] text-white h-screen w-screen flex flex-col font-sans select-none overflow-hidden">
+
+  <!-- macOS Unified Header Toolbar -->
+  <header class="h-11 border-b border-white/[0.08] mac-blur px-3.5 flex items-center justify-between z-30 shrink-0">
+    <!-- Left: Window / Sidebar Controls -->
+    <div class="flex items-center gap-3">
+      <button id="btn-toggle-sidebar" class="mac-btn h-7 px-2 text-xs" title="Sembunyikan / Tampilkan Sidebar (⌘B)">
+        <svg class="w-3.5 h-3.5 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h8m-8 6h16"></path></svg>
+        <span class="text-white/80 text-[11px] font-medium">Sidebar</span>
+      </button>
+
+      <div class="h-3.5 w-px bg-white/10"></div>
+
+      <!-- App Branding -->
+      <div class="flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-[#0A84FF] shadow-sm shadow-blue-500/40"></span>
+        <span class="font-semibold text-xs tracking-tight">DashBrowser</span>
+        <span class="text-[10px] px-1.5 py-0.5 rounded bg-white/[0.06] text-white/60 font-mono border border-white/5">Stealth v2.0</span>
+      </div>
+    </div>
+
+    <!-- Center: macOS Segmented Switcher -->
+    <div class="mac-segmented">
+      <button id="tab-btn-browser" class="active">Browser Utama</button>
+      <button id="tab-btn-spreadsheet">Batch Spreadsheet</button>
+      <button id="tab-btn-tracker">Laporan & Aktivitas</button>
+    </div>
+
+    <!-- Right: Primary Top Controls -->
+    <div class="flex items-center gap-2">
+      <!-- Theme Toggle (Dark / Light) -->
+      <button id="btn-toggle-theme" class="mac-btn h-7 px-2 text-[11px]" title="Ganti Mode Terang / Gelap">
+        <span id="theme-icon">☀️</span>
+      </button>
+
+      <!-- Local Client Bundle Export (Zero Delay) -->
+      <button id="btn-top-bundle" class="mac-btn text-[11px]" title="Buka profil di laptop lokal (0ms delay & GPU native)">
+        <svg class="w-3 h-3 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+        <span>Buka di Lokal</span>
+      </button>
+
+      <!-- Cookie Injector for Active Profile -->
+      <button id="btn-top-inject" class="mac-btn text-[11px]" title="Inject Cookie ke profil aktif">
+        <svg class="w-3 h-3 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+        <span>Inject Cookie</span>
+      </button>
+
+      <!-- Launch / Stop Action Button -->
+      <button id="btn-top-launch" class="mac-btn mac-btn-success text-[11px]">
+        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path></svg>
+        <span>Jalankan</span>
+      </button>
+      <button id="btn-top-stop" class="hidden mac-btn mac-btn-danger text-[11px]">
+        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"></path></svg>
+        <span>Hentikan</span>
+      </button>
+
+      <div class="h-3.5 w-px bg-white/10"></div>
+
+      <!-- Fullscreen / Layout Mode -->
+      <button id="btn-toggle-fullscreen" class="mac-btn h-7 px-2 text-[11px]" title="Layar Penuh (Fullscreen)">
+        <svg class="w-3 h-3 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Body Frame -->
+  <div class="flex flex-1 overflow-hidden relative">
+
+    <!-- Collapsible Sidebar (macOS Clean List) -->
+    <aside id="sidebar" class="w-60 border-r border-white/[0.08] mac-sidebar p-3 flex flex-col gap-2.5 shrink-0 z-20">
+      <div class="flex items-center justify-between px-1">
+        <span class="text-[10.5px] font-semibold uppercase tracking-wider text-white/45">Daftar Profil</span>
+        <button id="btn-sidebar-add" class="mac-btn mac-btn-primary px-2 py-0 text-[11px] h-5.5">+ Tambah</button>
+      </div>
+
+      <!-- Search Filter -->
+      <div class="relative">
+        <input type="text" id="search" placeholder="Cari profil..." class="w-full bg-black/40 border border-white/[0.08] rounded-md px-2.5 py-1 text-xs text-white placeholder-white/30 focus:outline-none focus:border-[#0A84FF]">
+      </div>
+
+      <!-- Profiles Scroll List -->
+      <div id="profile-list" class="flex flex-col gap-1 overflow-y-auto flex-1 pr-0.5"></div>
+
+      <!-- Active Profile Inspector Footer -->
+      <div id="sidebar-active-card" class="mac-card p-2.5 flex flex-col gap-1 text-xs">
+        <div class="flex items-center justify-between text-[10.5px] text-white/50">
+          <span>Profil Terpilih</span>
+          <span id="sb-status" class="px-1.5 py-0.5 rounded text-[9.5px] font-mono bg-white/[0.08]">OFFLINE</span>
+        </div>
+        <div class="font-medium truncate text-white/95 text-xs" id="sb-name">-</div>
+        <div class="flex items-center justify-between text-[10px] text-white/40 pt-0.5">
+          <span id="sb-vpn">VPN: INDONESIA</span>
+          <span id="sb-cookies">0 Cookie</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Workspace Panes -->
+    <main class="flex-1 flex flex-col overflow-hidden relative bg-[#090a0d]">
+
+      <!-- PANE 1: Browser View (Full Width Capable) -->
+      <div id="view-browser" class="flex-1 flex flex-col h-full w-full overflow-hidden">
+        
+        <!-- Safari-style Unified Address & Navigation Bar -->
+        <div class="h-9 border-b border-white/[0.08] bg-black/40 px-3 flex items-center justify-between gap-3 shrink-0">
+          <!-- Left Controls (Reload) -->
+          <div class="flex items-center gap-1.5">
+            <button id="btn-vp-reload" class="mac-btn h-6 px-1.5" title="Muat Ulang Halaman">
+              <svg class="w-3 h-3 text-white/75" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+            </button>
+          </div>
+
+          <!-- Centered Capsule Address Bar -->
+          <div class="flex-1 max-w-2xl flex items-center bg-white/[0.05] border border-white/[0.08] rounded-md px-2.5 h-6 text-xs transition focus-within:border-[#0A84FF]">
+            <span class="text-white/35 mr-1.5 text-[10px]">🔒</span>
+            <input type="text" id="vp-url-input" class="w-full bg-transparent focus:outline-none text-white/90 text-xs font-mono" placeholder="Masukkan URL situs web...">
+            <button id="btn-vp-go" class="text-[#0A84FF] hover:text-blue-400 text-[11px] font-medium ml-1">Buka</button>
+          </div>
+
+          <!-- Right Controls (VPN Switcher, Proxy/IP Check & Cookie Indicator) -->
+          <div class="flex items-center gap-2">
+            <!-- Tombol Cek IP / Proxy Langsung -->
+            <button id="btn-check-ip" class="mac-btn h-6 px-2 text-[10.5px] border border-cyan-500/30 text-cyan-400 bg-cyan-950/40 hover:bg-cyan-900/50 flex items-center gap-1.5" title="Periksa Alamat IP Publik & Status Jaringan">
+              <svg class="w-3 h-3 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+              <span id="label-check-ip">Cek IP/Proxy</span>
+            </button>
+
+            <span id="vp-cookie-badge" class="hidden text-[9.5px] px-2 py-0.5 rounded bg-emerald-950/80 border border-emerald-800/80 text-emerald-300 font-mono">Cookie Aktif</span>
+            <div class="flex items-center gap-1">
+              <span class="text-[10.5px] text-white/40">VPN:</span>
+              <select id="p-vpn-select" class="bg-black/50 border border-white/[0.08] rounded px-1.5 h-6 text-[10.5px] text-white/80 focus:outline-none"></select>
+              <button id="btn-vpn-apply" class="mac-btn h-6 px-2 text-[10px]">Ganti</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Emulation Bar: Keyboard & Typing -->
+        <div class="h-7 border-b border-white/[0.05] bg-black/20 px-3 flex items-center gap-2 shrink-0 text-xs">
+          <span class="text-[10.5px] text-white/45 shrink-0">Ketik di halaman:</span>
+          <input type="text" id="vp-type-input" placeholder="Ketik teks lalu tekan Enter..." class="flex-1 max-w-md bg-black/40 border border-white/[0.06] rounded px-2 h-5 text-xs text-white focus:outline-none focus:border-[#0A84FF]">
+          <button id="btn-vp-send-text" class="mac-btn h-5 px-2 text-[10px]">Kirim</button>
+          <button id="btn-vp-send-enter" class="mac-btn h-5 px-2 text-[10px]">Enter ⏎</button>
+          <span id="vp-loading-badge" class="hidden text-[10px] text-blue-400 font-mono animate-pulse">Menghubungkan...</span>
+        </div>
+
+        <!-- Viewport Display Container -->
+        <div id="viewport-wrapper" class="flex-1 w-full bg-black relative flex items-center justify-center overflow-hidden cursor-crosshair">
+          <img id="vp-screen" class="max-w-full max-h-full object-contain select-none" alt="">
+          <div id="vp-click-ripple" class="absolute w-5 h-5 rounded-full border border-emerald-400 pointer-events-none scale-0 transition-transform duration-200 -translate-x-1/2 -translate-y-1/2"></div>
+          
+          <!-- Clean Placeholder when Browser Stopped -->
+          <div id="vp-placeholder" class="absolute inset-0 flex flex-col items-center justify-center bg-[#0b0c10] gap-3 text-center p-6">
+            <div class="w-11 h-11 rounded-xl bg-white/[0.04] border border-white/[0.08] flex items-center justify-center text-white/40 shadow-inner">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+            </div>
+            <div>
+              <h3 class="font-medium text-xs text-white/90">Browser Remote Tidak Aktif</h3>
+              <p class="text-[11px] text-white/45 max-w-sm mt-0.5 leading-relaxed">Gunakan tombol <b>"Buka di Lokal"</b> di bilah atas untuk pengalaman tercepat (0ms delay) di laptop Anda, atau klik "Jalankan" untuk remote headless.</p>
+            </div>
+            <div class="flex items-center gap-2 mt-1">
+              <button id="btn-vp-open-local" class="mac-btn mac-btn-primary px-3.5 h-7 text-xs font-medium">Buka di Browser Lokal (Rekomendasi)</button>
+              <button id="btn-vp-start-now" class="mac-btn px-3 h-7 text-xs">Jalankan di Server</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Viewport Bottom Status Bar -->
+        <div class="h-6 border-t border-white/[0.08] bg-black/40 px-3 flex items-center justify-between text-[10.5px] text-white/45 shrink-0">
+          <div class="flex items-center gap-3">
+            <span id="vp-status-dot" class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-neutral-600"></span> Offline</span>
+            <span>1280x800 · Mesin Cloak Stealth Chrome</span>
+          </div>
+          <div class="flex items-center gap-4 pr-36">
+            <span class="text-white/35">Paling lancar & aman bila dijalankan di laptop lokal</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- PANE 2: Batch Spreadsheet Cookie Injector Dashboard -->
+      <div id="view-spreadsheet" class="hidden flex-1 flex flex-col h-full w-full p-5 overflow-y-auto max-w-5xl mx-auto">
+        <div class="flex items-center justify-between mb-3.5">
+          <div>
+            <h2 class="text-base font-semibold tracking-tight">Batch Cookie Spreadsheet Injector</h2>
+            <p class="text-xs text-white/50 mt-0.5">Salin baris langsung dari Google Sheets atau Excel untuk simpan cookie akun terpusat.</p>
+          </div>
+          <button id="btn-load-sample" class="mac-btn text-xs">Muat Contoh Data</button>
+        </div>
+
+        <!-- Input Box -->
+        <div class="mac-card p-3.5 mb-3.5">
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="text-[11px] font-semibold uppercase tracking-wider text-white/50">
+              Format Kolom: <span class="font-mono text-white/80">Nama Akun [Tab] URL [Tab] Cookie [Tab] VPN Server</span>
+            </span>
+            <span class="text-[10px] text-white/40">Mendukung JSON array & format semicolon (name=value)</span>
+          </div>
+          <textarea id="bulk-input" rows="5" placeholder="Paste baris data spreadsheet di sini..." class="w-full bg-black/50 border border-white/[0.08] rounded-md p-2.5 text-xs font-mono text-white/90 focus:outline-none focus:border-[#0A84FF]"></textarea>
+          
+          <div class="flex items-center justify-between mt-2.5">
+            <span class="text-xs text-white/50">Semua akun otomatis siap disinkronkan ke tim lokal</span>
+            <div class="flex items-center gap-2">
+              <button id="btn-parse-spreadsheet" class="mac-btn px-3 text-xs font-medium">Uji & Periksa</button>
+              <button id="btn-execute-spreadsheet" class="mac-btn mac-btn-primary px-3 text-xs font-medium" disabled>Simpan Akun Massal</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Parsed Preview Grid -->
+        <div class="mac-card p-3.5 flex-1 flex flex-col overflow-hidden">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-[11px] font-semibold uppercase tracking-wider text-white/50">Hasil Verifikasi Data</span>
+            <div id="bulk-summary" class="text-xs text-white/50">0 baris terdeteksi</div>
+          </div>
+
+          <div class="overflow-y-auto flex-1 border border-white/[0.06] rounded-md">
+            <table class="w-full text-left text-xs text-white/80">
+              <thead class="bg-white/[0.04] border-b border-white/[0.06] text-white/50 text-[10.5px] sticky top-0 uppercase">
+                <tr>
+                  <th class="p-2">#</th>
+                  <th class="p-2">Nama Akun</th>
+                  <th class="p-2">Target URL</th>
+                  <th class="p-2">Status Cookie</th>
+                  <th class="p-2">Jumlah</th>
+                  <th class="p-2">Lokasi VPN</th>
+                </tr>
+              </thead>
+              <tbody id="bulk-preview-body" class="divide-y divide-white/[0.04]">
+                <tr><td colspan="6" class="p-4 text-center text-white/40">Belum ada baris data spreadsheet yang diproses.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- PANE 3: Report & Activity Tracking -->
+      <div id="view-tracker" class="hidden flex-1 flex flex-col h-full w-full p-5 overflow-y-auto max-w-5xl mx-auto">
+        <div class="flex items-center justify-between mb-3.5">
+          <div>
+            <h2 class="text-base font-semibold tracking-tight">Rekapan Laporan & Aktivitas</h2>
+            <p class="text-xs text-white/50 mt-0.5">Daftar rekapan tautan postingan, komentar yang dikirim, dan akun yang digunakan.</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button id="btn-clear-logs" class="mac-btn mac-btn-danger text-xs">Hapus Semua</button>
+            <button id="btn-export-logs" class="mac-btn text-xs">Unduh CSV</button>
+          </div>
+        </div>
+
+        <div class="mac-card p-3.5 flex-1 flex flex-col overflow-hidden">
+          <div class="overflow-y-auto flex-1 border border-white/[0.06] rounded-md">
+            <table class="w-full text-left text-xs text-white/80">
+              <thead class="bg-white/[0.04] border-b border-white/[0.06] text-white/50 text-[10.5px] sticky top-0 uppercase">
+                <tr>
+                  <th class="p-2">Waktu</th>
+                  <th class="p-2">Akun Profil</th>
+                  <th class="p-2">Aksi</th>
+                  <th class="p-2">Tautan Postingan</th>
+                  <th class="p-2">Catatan / Komentar</th>
+                  <th class="p-2 text-right">Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="tracker-body" class="divide-y divide-white/[0.04]">
+                <!-- Populated via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Flying Action Button (FAB) & Activity Drawer (Bottom Right) -->
+  <div id="fab-container" class="fixed bottom-8 right-4 z-40 flex flex-col items-end gap-2.5">
+    
+    <!-- Logging Popover Sheet -->
+    <div id="fab-action-panel" class="fab-hidden mac-card mac-blur p-3.5 w-76 shadow-2xl border border-white/15 flex flex-col gap-2 text-xs">
+      <div class="flex items-center justify-between border-b border-white/10 pb-1.5">
+        <span class="font-medium text-white text-xs flex items-center gap-1.5">
+          <span>📌</span> Catat Laporan Postingan
+        </span>
+        <button id="btn-close-fab" class="text-white/40 hover:text-white text-xs">✕</button>
+      </div>
+
+      <div>
+        <label class="block text-[10.5px] text-white/60 mb-0.5">Tautan Postingan (IG / Threads / X):</label>
+        <input type="url" id="fab-input-url" placeholder="https://..." class="w-full bg-black/60 border border-white/[0.08] rounded px-2 py-1 text-xs text-white focus:outline-none focus:border-[#0A84FF]">
+      </div>
+
+      <div class="grid grid-cols-2 gap-2">
+        <div>
+          <label class="block text-[10.5px] text-white/60 mb-0.5">Tipe Aksi:</label>
+          <select id="fab-select-action" class="w-full bg-black/60 border border-white/[0.08] rounded px-1.5 py-1 text-xs text-white focus:outline-none">
+            <option value="Komentar">Komentar</option>
+            <option value="Like & Simpan">Like & Simpan</option>
+            <option value="Direct Message">Direct Message</option>
+            <option value="Upload Post">Upload Post</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-[10.5px] text-white/60 mb-0.5">Akun Aktif:</label>
+          <input type="text" id="fab-input-account" readonly class="w-full bg-white/[0.04] border border-white/[0.08] rounded px-2 py-1 text-xs text-white/60">
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-[10.5px] text-white/60 mb-0.5">Isi Komentar / Catatan:</label>
+        <textarea id="fab-input-note" rows="2" placeholder="Catatan aktivitas..." class="w-full bg-black/60 border border-white/[0.08] rounded px-2 py-1 text-xs text-white focus:outline-none focus:border-[#0A84FF]"></textarea>
+      </div>
+
+      <div class="pt-1">
+        <button id="btn-fab-submit" class="mac-btn mac-btn-primary w-full h-7 text-xs font-medium">Simpan Laporan</button>
+      </div>
+    </div>
+
+    <!-- Floating Capsule Trigger with Hide Control -->
+    <div class="flex items-center gap-1.5">
+      <button id="btn-hide-fab" class="mac-btn h-8 px-2 rounded-full text-[10px] text-white/50 hover:text-white" title="Sembunyikan tombol floating">✕</button>
+      <button id="fab-toggle-btn" class="mac-blur mac-btn h-8 px-3 rounded-full shadow-lg border border-white/20 hover:border-white/30 text-xs flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-[#0A84FF] animate-pulse"></span>
+        <span class="font-medium text-white/90">Catat Laporan</span>
+      </button>
+    </div>
+  </div>
+
+  <button id="btn-unhide-fab" class="hidden fixed bottom-3 right-3 z-40 mac-btn h-6 px-2 rounded-full text-[10px] text-white/60 hover:text-white border border-white/10 mac-blur">
+    + Catat Laporan
+  </button>
+
+  <!-- Modal: Local Bundle Export (3-Hour Safe Token) -->
+  <div id="modal-bundle" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+    <div class="mac-card mac-blur max-w-lg w-full p-5 shadow-2xl flex flex-col gap-3.5 border border-white/15">
+      <div class="flex items-center justify-between border-b border-white/10 pb-2">
+        <div class="flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-cyan-400"></span>
+          <h3 class="font-semibold text-xs text-white">Buka di Browser Laptop Lokal (Zero Delay)</h3>
+        </div>
+        <button id="btn-close-bundle" class="text-white/40 hover:text-white text-xs">✕</button>
+      </div>
+
+      <div class="text-xs text-white/70 leading-relaxed bg-white/[0.03] p-3 rounded-lg border border-white/[0.06]">
+        <div class="flex items-center justify-between text-[11px] mb-1">
+          <span class="font-medium text-white" id="bundle-modal-name">Profil: -</span>
+          <span class="px-2 py-0.5 rounded bg-cyan-950 border border-cyan-800 text-cyan-300 font-mono text-[10px]">Masa Berlaku: 3 Jam</span>
+        </div>
+        <p class="text-[11px] text-white/50">Cookie akun disiapkan aman dari server dan langsung diinjeksi ke browser lokal laptop tim.</p>
+      </div>
+
+      <div>
+        <label class="block text-[10.5px] text-white/50 mb-1">Perintah Terminal Cepat di Laptop Tim:</label>
+        <div class="flex items-center gap-2">
+          <input type="text" id="bundle-cli-cmd" readonly class="w-full bg-black/70 border border-white/[0.08] rounded px-2.5 py-1.5 text-xs font-mono text-cyan-300 focus:outline-none">
+          <button id="btn-copy-cli" class="mac-btn h-8 px-3 text-xs font-medium shrink-0">Salin</button>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-[10.5px] text-white/50 mb-1">Payload Bundle JSON:</label>
+        <textarea id="bundle-json-view" rows="4" readonly class="w-full bg-black/70 border border-white/[0.08] rounded-md p-2 text-[10.5px] font-mono text-white/70 focus:outline-none"></textarea>
+      </div>
+
+      <div class="flex justify-between items-center pt-2 border-t border-white/10">
+        <button type="button" id="btn-download-bundle" class="mac-btn text-xs">Unduh .dashbundle</button>
+        <button type="button" id="btn-done-bundle" class="mac-btn mac-btn-primary text-xs font-medium">Selesai</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Single Profile Cookie Injector -->
+  <div id="modal-inject" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+    <div class="mac-card mac-blur max-w-md w-full p-5 shadow-2xl flex flex-col gap-3.5 border border-white/15">
+      <div class="flex items-center justify-between border-b border-white/10 pb-2">
+        <h3 class="font-semibold text-xs text-white">Inject Cookie Profil</h3>
+        <button id="btn-close-inject" class="text-white/40 hover:text-white text-xs">✕</button>
+      </div>
+
+      <div>
+        <div class="text-xs text-white/60 mb-1">Target: <span id="inject-target-name" class="font-medium text-white"></span></div>
+        <label class="block text-[10.5px] text-white/50 mb-0.5">Paste Cookie (JSON array atau format name=value):</label>
+        <textarea id="inject-cookie-input" rows="5" class="w-full bg-black/60 border border-white/[0.08] rounded-md p-2 text-xs font-mono text-white/90 focus:outline-none focus:border-[#0A84FF]"></textarea>
+      </div>
+
+      <div>
+        <label class="block text-[10.5px] text-white/50 mb-0.5">Target URL (opsional):</label>
+        <input type="url" id="inject-nav-url" placeholder="https://..." class="w-full bg-black/60 border border-white/[0.08] rounded px-2.5 py-1 text-xs text-white focus:outline-none focus:border-[#0A84FF]">
+      </div>
+
+      <div class="flex justify-end gap-2 pt-1 border-t border-white/10">
+        <button type="button" id="btn-cancel-inject" class="mac-btn text-xs">Batal</button>
+        <button type="button" id="btn-submit-inject" class="mac-btn mac-btn-primary text-xs font-medium">Inject Cookie</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Add / Edit Profile -->
+  <div id="modal-profile" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+    <div class="mac-card mac-blur max-w-md w-full p-5 shadow-2xl flex flex-col gap-3 border border-white/15">
+      <h3 id="modal-profile-title" class="text-xs font-semibold">Tambah Profil Baru</h3>
+      <form id="form-profile" class="flex flex-col gap-3">
+        <input type="hidden" id="form-id">
+        <div>
+          <label class="block text-[10.5px] text-white/60 mb-0.5">Nama Akun / Profil</label>
+          <input type="text" id="form-name" required class="w-full bg-black/60 border border-white/[0.08] rounded px-2.5 py-1 text-xs text-white focus:outline-none focus:border-[#0A84FF]">
+        </div>
+        <div>
+          <label class="block text-[10.5px] text-white/60 mb-0.5">Start URL</label>
+          <input type="url" id="form-url" value="https://www.google.com" class="w-full bg-black/60 border border-white/[0.08] rounded px-2.5 py-1 text-xs text-white focus:outline-none focus:border-[#0A84FF]">
+        </div>
+        <div>
+          <label class="block text-[10.5px] text-white/60 mb-0.5">Lokasi VPN (Surfshark)</label>
+          <select id="form-vpn-node" class="w-full bg-black/60 border border-white/[0.08] rounded px-2 py-1 text-xs text-white focus:outline-none"></select>
+        </div>
+        <div>
+          <label class="block text-[10.5px] text-white/60 mb-0.5">User Agent (Opsional)</label>
+          <input type="text" id="form-ua" class="w-full bg-black/60 border border-white/[0.08] rounded px-2.5 py-1 text-xs font-mono text-white/70 focus:outline-none focus:border-[#0A84FF]" placeholder="Default: Chrome 133 Desktop Anti-CAPTCHA">
+        </div>
+        <div class="flex justify-end gap-2 pt-1 border-t border-white/10">
+          <button type="button" id="btn-cancel-profile" class="mac-btn text-xs">Batal</button>
+          <button type="submit" class="mac-btn mac-btn-primary text-xs font-medium">Simpan</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

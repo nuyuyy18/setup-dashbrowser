@@ -1,0 +1,9 @@
+node_modules/
+build_out/
+*.apk
+*.idsig
+debug.keystore
+.DS_Store
+data/profiles/
+data/extensions/
+data/

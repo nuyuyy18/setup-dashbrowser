@@ -1,0 +1,32 @@
+{
+  "name": "dashbrowser",
+  "version": "2.0.0",
+  "description": "DashBrowser - Multi-Account Browser Manager & Stealth Vault",
+  "main": "src/main/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "desktop:electron": "electron .",
+    "desktop:tauri": "tauri dev",
+    "desktop:build": "tauri build",
+    "launch:local": "node launch_local.js"
+  },
+  "keywords": [
+    "dashbrowser",
+    "browser",
+    "multi-account",
+    "tauri",
+    "stealth"
+  ],
+  "author": "rausal43",
+  "license": "ISC",
+  "dependencies": {
+    "adm-zip": "^0.5.16",
+    "cloakbrowser": "^0.5.10",
+    "playwright-core": "^1.63.0",
+    "ws": "^8.21.3"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.0.0",
+    "electron": "^41.0.0"
+  }
+}
