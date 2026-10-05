@@ -106,8 +106,9 @@ const server = http.createServer(async (req, res) => {
     if (p === '/api/browser/status' && req.method === 'GET') return json(res, 200, bm.getStatus(id));
     if (p === '/api/browser/navigate' && req.method === 'POST') return json(res, 200, await bm.navigate(id, (await readBody(req)).url));
     if (p === '/api/browser/screenshot' && req.method === 'GET') {
+      const img = await bm.screenshot(id);
       res.writeHead(200, { 'Content-Type': 'image/jpeg', 'Cache-Control': 'no-cache, no-store' });
-      return res.end(await bm.screenshot(id));
+      return res.end(img);
     }
     if (p === '/api/browser/click' && req.method === 'POST') { const b = await readBody(req); return json(res, 200, await bm.click(id, b.x, b.y)); }
     if (p === '/api/browser/type' && req.method === 'POST') { const b = await readBody(req); return json(res, 200, await bm.type(id, b.text)); }
@@ -119,7 +120,10 @@ const server = http.createServer(async (req, res) => {
     if (p.startsWith('/api/logs/') && req.method === 'DELETE') { store.deleteLog(p.split('/').pop()); return json(res, 200, { ok: true }); }
     if (p === '/api/logs/clear' && req.method === 'POST') { store.clearLogs(); return json(res, 200, { ok: true }); }
   } catch (err) {
-    return json(res, 500, { error: err.message });
+    if (!res.headersSent) {
+      return json(res, 500, { error: err.message });
+    }
+    console.error('Error after headers sent:', err);
   }
 
   // Static files & SPA
