@@ -123,8 +123,13 @@ async function launch(profile) {
   ];
 
   let proxyConfig;
+  // Fallback to undefined proxy if 127.0.0.1:8888 is unreachable locally in standard deployments
   if (profile.useVpn !== false) {
-    proxyConfig = { server: 'http://127.0.0.1:8888' };
+    if (process.platform === 'linux' && !fs.existsSync('/opt/data/surfshark/switch_vpn.sh')) {
+      proxyConfig = undefined; // Force bypass proxy when backend vpn script is missing
+    } else {
+      proxyConfig = { server: 'http://127.0.0.1:8888' };
+    }
   } else if (profile.proxy && profile.proxy.host && profile.proxy.port) {
     const proto = (profile.proxy.type || 'http').toLowerCase();
     proxyConfig = { server: `${proto}://${profile.proxy.host}:${profile.proxy.port}` };
