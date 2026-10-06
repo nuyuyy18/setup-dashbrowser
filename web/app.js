@@ -219,7 +219,8 @@ async function checkLiveStatus() {
 
 function startPolling() {
   stopPolling();
-  state.pollTimer = setInterval(refreshScreenshot, 1000);
+  // Polling frame rate drastically sped up to roughly 12 FPS for instant feel
+  state.pollTimer = setInterval(refreshScreenshot, 80);
 }
 
 function stopPolling() {
@@ -484,7 +485,7 @@ function initEvents() {
     try {
       const res = await api(`/api/browser/click?id=${state.activeId}`, 'POST', { x, y });
       if (res.url) $('vp-url-input').value = res.url;
-      setTimeout(refreshScreenshot, 250);
+      refreshScreenshot();
     } catch (e) {
       console.error('Click error', e);
     }
@@ -500,7 +501,7 @@ function initEvents() {
     if (specialKeys.includes(e.key)) {
       e.preventDefault();
       await api(`/api/browser/key?id=${state.activeId}`, 'POST', { key: e.key });
-      setTimeout(refreshScreenshot, 250);
+      refreshScreenshot();
     }
   });
 
@@ -513,7 +514,7 @@ function initEvents() {
     // Prevent default browser behavior if needed, and send typing
     e.preventDefault();
     await api(`/api/browser/type?id=${state.activeId}`, 'POST', { text: e.key });
-    setTimeout(refreshScreenshot, 250);
+    refreshScreenshot();
   });
 
   // Mobile / IME Input Listener on hidden input
@@ -522,9 +523,55 @@ function initEvents() {
     if (e.data) {
       await api(`/api/browser/type?id=${state.activeId}`, 'POST', { text: e.data });
       $('vp-hidden-input').value = '';
-      setTimeout(refreshScreenshot, 250);
+      refreshScreenshot();
     }
   });
+
+  // Quick Action Bar
+  $('btn-scroll-down').onclick = async () => {
+    if (!state.activeId) return;
+    await api(`/api/browser/key?id=${state.activeId}`, 'POST', { key: 'PageDown' });
+    setTimeout(refreshScreenshot, 300);
+  };
+
+  $('btn-scroll-up').onclick = async () => {
+    if (!state.activeId) return;
+    await api(`/api/browser/key?id=${state.activeId}`, 'POST', { key: 'PageUp' });
+    setTimeout(refreshScreenshot, 300);
+  };
+
+  $('btn-tab-next').onclick = async () => {
+    if (!state.activeId) return;
+    await api(`/api/browser/key?id=${state.activeId}`, 'POST', { key: 'Tab' });
+    setTimeout(refreshScreenshot, 300);
+  };
+
+  // Mouse Wheel Scroll Emulation
+  $('viewport-wrapper').addEventListener('wheel', async e => {
+    if (!state.activeId) return;
+    e.preventDefault();
+    await api(`/api/browser/scroll?id=${state.activeId}`, 'POST', { deltaY: e.deltaY });
+    refreshScreenshot();
+  }, { passive: false });
+
+  // Touch Swipe Scroll Emulation (Mobile)
+  let touchStartY = 0;
+  $('viewport-wrapper').addEventListener('touchstart', e => {
+    if (e.touches.length === 1) {
+      touchStartY = e.touches[0].clientY;
+    }
+  }, { passive: true });
+
+  $('viewport-wrapper').addEventListener('touchmove', async e => {
+    if (!state.activeId || e.touches.length !== 1) return;
+    const currentY = e.touches[0].clientY;
+    const diffY = touchStartY - currentY;
+    if (Math.abs(diffY) > 12) {
+      touchStartY = currentY;
+      await api(`/api/browser/scroll?id=${state.activeId}`, 'POST', { deltaY: diffY * 3 });
+      refreshScreenshot();
+    }
+  }, { passive: true });
 
   // Single Cookie Inject Modal
   $('btn-top-inject').onclick = () => {

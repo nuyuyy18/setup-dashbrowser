@@ -150,6 +150,7 @@ async function launch(profile) {
 
     const pages = ctx.pages();
     page = pages[0] || await ctx.newPage();
+    // Viewport size matching desktop browser
     await page.setViewportSize({ width: 1280, height: 800 });
     
     // Initial navigation
@@ -216,7 +217,8 @@ async function injectCookies(profileId, cookies, navigateUrl = null) {
 async function screenshot(profileId) {
   const s = sessions.get(profileId);
   if (!s) throw new Error('Browser not running');
-  return s.page.screenshot({ type: 'jpeg', quality: 55, timeout: 5000 });
+  // Lower quality for faster transmission
+  return s.page.screenshot({ type: 'jpeg', quality: 20, timeout: 5000 });
 }
 
 async function click(profileId, x, y) {
@@ -248,8 +250,16 @@ function getStatus(profileId) {
   return s ? { running: true, url: s.page.url(), title: s.title, vpnNode: s.vpnNode } : { running: false };
 }
 
+async function scroll(profileId, deltaY) {
+  const s = sessions.get(profileId);
+  if (!s) throw new Error('Browser not running');
+  s.lastActive = Date.now();
+  await s.page.mouse.wheel(0, deltaY);
+  return { ok: true };
+}
+
 module.exports = {
   launch, stop, navigate, injectCookies, screenshot,
-  click, type, keyPress, getStatus, getVpnServers,
+  click, type, keyPress, scroll, getStatus, getVpnServers,
   switchVpnServer, DEFAULT_USER_AGENT
 };

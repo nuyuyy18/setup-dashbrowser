@@ -113,6 +113,11 @@ const server = http.createServer(async (req, res) => {
     if (p === '/api/browser/click' && req.method === 'POST') { const b = await readBody(req); return json(res, 200, await bm.click(id, b.x, b.y)); }
     if (p === '/api/browser/type' && req.method === 'POST') { const b = await readBody(req); return json(res, 200, await bm.type(id, b.text)); }
     if (p === '/api/browser/key' && req.method === 'POST') { const b = await readBody(req); return json(res, 200, await bm.keyPress(id, b.key)); }
+    if (p === '/api/browser/scroll' && req.method === 'POST') { 
+      const b = await readBody(req); 
+      await bm.scroll(id, Number(b.deltaY) || 300);
+      return json(res, 200, { ok: true }); 
+    }
 
     // Activity Logs / Tracking
     if (p === '/api/logs' && req.method === 'GET') return json(res, 200, store.getLogs());
