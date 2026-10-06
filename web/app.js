@@ -546,13 +546,30 @@ function initEvents() {
     setTimeout(refreshScreenshot, 300);
   };
 
+  // Accumulated Scroll Emulation (Prevent HTTP flood)
+  let pendingScrollY = 0;
+  let scrollTimeout = null;
+
+  function flushScroll() {
+    if (!state.activeId || pendingScrollY === 0) return;
+    const sendY = pendingScrollY;
+    pendingScrollY = 0;
+    api(`/api/browser/scroll?id=${state.activeId}`, 'POST', { deltaY: sendY })
+      .then(refreshScreenshot)
+      .catch(() => {});
+  }
+
   // Mouse Wheel Scroll Emulation
-  $('viewport-wrapper').addEventListener('wheel', async e => {
+  $('viewport-wrapper').addEventListener('wheel', e => {
     if (!state.activeId) return;
-    e.preventDefault();
-    await api(`/api/browser/scroll?id=${state.activeId}`, 'POST', { deltaY: e.deltaY });
-    refreshScreenshot();
-  }, { passive: false });
+    pendingScrollY += e.deltaY;
+    if (!scrollTimeout) {
+      scrollTimeout = setTimeout(() => {
+        flushScroll();
+        scrollTimeout = null;
+      }, 50);
+    }
+  }, { passive: true });
 
   // Touch Swipe Scroll Emulation (Mobile)
   let touchStartY = 0;
@@ -562,14 +579,21 @@ function initEvents() {
     }
   }, { passive: true });
 
-  $('viewport-wrapper').addEventListener('touchmove', async e => {
+  $('viewport-wrapper').addEventListener('touchmove', e => {
     if (!state.activeId || e.touches.length !== 1) return;
     const currentY = e.touches[0].clientY;
     const diffY = touchStartY - currentY;
-    if (Math.abs(diffY) > 12) {
+    
+    if (Math.abs(diffY) > 5) {
+      pendingScrollY += (diffY * 1.5);
       touchStartY = currentY;
-      await api(`/api/browser/scroll?id=${state.activeId}`, 'POST', { deltaY: diffY * 3 });
-      refreshScreenshot();
+      
+      if (!scrollTimeout) {
+        scrollTimeout = setTimeout(() => {
+          flushScroll();
+          scrollTimeout = null;
+        }, 50);
+      }
     }
   }, { passive: true });
 
