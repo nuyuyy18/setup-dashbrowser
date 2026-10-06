@@ -10,33 +10,33 @@
 <body class="bg-[#0d0e12] text-white h-screen w-screen flex flex-col font-sans select-none overflow-hidden">
 
   <!-- macOS Unified Header Toolbar -->
-  <header class="h-11 border-b border-white/[0.08] mac-blur px-3.5 flex items-center justify-between z-30 shrink-0">
+  <header class="h-11 border-b border-white/[0.08] mac-blur px-3.5 flex items-center justify-between z-30 shrink-0 overflow-x-auto overflow-y-hidden gap-4">
     <!-- Left: Window / Sidebar Controls -->
-    <div class="flex items-center gap-3">
+    <div class="flex items-center gap-3 shrink-0">
       <button id="btn-toggle-sidebar" class="mac-btn h-7 px-2 text-xs" title="Sembunyikan / Tampilkan Sidebar (⌘B)">
         <svg class="w-3.5 h-3.5 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h8m-8 6h16"></path></svg>
-        <span class="text-white/80 text-[11px] font-medium">Sidebar</span>
+        <span class="text-white/80 text-[11px] font-medium hidden sm:block">Sidebar</span>
       </button>
 
-      <div class="h-3.5 w-px bg-white/10"></div>
+      <div class="h-3.5 w-px bg-white/10 hidden sm:block"></div>
 
       <!-- App Branding -->
       <div class="flex items-center gap-2">
         <span class="w-2 h-2 rounded-full bg-[#0A84FF] shadow-sm shadow-blue-500/40"></span>
         <span class="font-semibold text-xs tracking-tight">DashBrowser</span>
-        <span class="text-[10px] px-1.5 py-0.5 rounded bg-white/[0.06] text-white/60 font-mono border border-white/5">Stealth v2.0</span>
+        <span class="text-[10px] px-1.5 py-0.5 rounded bg-white/[0.06] text-white/60 font-mono border border-white/5 hidden sm:inline-block">Stealth v2.0</span>
       </div>
     </div>
 
     <!-- Center: macOS Segmented Switcher -->
-    <div class="mac-segmented">
+    <div class="mac-segmented hidden md:flex shrink-0">
       <button id="tab-btn-browser" class="active">Browser Utama</button>
       <button id="tab-btn-spreadsheet">Batch Spreadsheet</button>
       <button id="tab-btn-tracker">Laporan & Aktivitas</button>
     </div>
 
     <!-- Right: Primary Top Controls -->
-    <div class="flex items-center gap-2">
+    <div class="flex items-center gap-2 shrink-0">
       <!-- Theme Toggle (Dark / Light) -->
       <button id="btn-toggle-theme" class="mac-btn h-7 px-2 text-[11px]" title="Ganti Mode Terang / Gelap">
         <span id="theme-icon">☀️</span>
