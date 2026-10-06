@@ -417,6 +417,47 @@ function initEvents() {
     }
   };
 
+  // Keyboard bar interactions
+  $('vp-type-input').addEventListener('keydown', async e => {
+    if (e.key === 'Enter') {
+      const txt = $('vp-type-input').value;
+      if (txt && state.activeId) {
+        await api(`/api/browser/type?id=${state.activeId}`, 'POST', { text: txt });
+        $('vp-type-input').value = '';
+        setTimeout(refreshScreenshot, 400);
+      }
+    }
+  });
+
+  $('btn-vp-send-text').onclick = async () => {
+    const txt = $('vp-type-input').value;
+    if (txt && state.activeId) {
+      await api(`/api/browser/type?id=${state.activeId}`, 'POST', { text: txt });
+      $('vp-type-input').value = '';
+      setTimeout(refreshScreenshot, 400);
+    }
+  };
+
+  $('btn-vp-send-enter').onclick = async () => {
+    if (!state.activeId) return;
+    await api(`/api/browser/key?id=${state.activeId}`, 'POST', { key: 'Enter' });
+    setTimeout(refreshScreenshot, 400);
+  };
+
+  $('btn-vp-send-backspace').onclick = async () => {
+    if (!state.activeId) return;
+    await api(`/api/browser/key?id=${state.activeId}`, 'POST', { key: 'Backspace' });
+    setTimeout(refreshScreenshot, 250);
+  };
+
+  $('btn-vp-clear-input').onclick = async () => {
+    if (!state.activeId) return;
+    // Select all text in the focused field and delete it
+    await api(`/api/browser/key?id=${state.activeId}`, 'POST', { key: 'Control+a' });
+    await api(`/api/browser/key?id=${state.activeId}`, 'POST', { key: 'Backspace' });
+    setTimeout(refreshScreenshot, 300);
+  };
+
   // Instant Click Emulation
   $('vp-screen').onclick = async e => {
     if (!state.activeId) return;
@@ -433,6 +474,13 @@ function initEvents() {
     rip.classList.add('scale-100');
     setTimeout(() => { rip.classList.remove('scale-100'); rip.classList.add('scale-0'); }, 180);
 
+    // Auto focus invisible input for mobile/desktop direct typing
+    const hiddenInp = $('vp-hidden-input');
+    if (hiddenInp) {
+      hiddenInp.value = '';
+      hiddenInp.focus();
+    }
+
     try {
       const res = await api(`/api/browser/click?id=${state.activeId}`, 'POST', { x, y });
       if (res.url) $('vp-url-input').value = res.url;
@@ -445,13 +493,35 @@ function initEvents() {
   // Keyboard emulation inside viewport
   window.addEventListener('keydown', async e => {
     if (state.activeTab !== 'browser' || !state.activeId) return;
-    if (document.activeElement && ['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) {
+    if (document.activeElement && ['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName) && document.activeElement.id !== 'vp-hidden-input') {
       return;
     }
     const specialKeys = ['Enter', 'Backspace', 'Tab', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Escape'];
     if (specialKeys.includes(e.key)) {
       e.preventDefault();
       await api(`/api/browser/key?id=${state.activeId}`, 'POST', { key: e.key });
+      setTimeout(refreshScreenshot, 250);
+    }
+  });
+
+  // Typed Character Emulation
+  window.addEventListener('keypress', async e => {
+    if (state.activeTab !== 'browser' || !state.activeId) return;
+    if (document.activeElement && ['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName) && document.activeElement.id !== 'vp-hidden-input') {
+      return;
+    }
+    // Prevent default browser behavior if needed, and send typing
+    e.preventDefault();
+    await api(`/api/browser/type?id=${state.activeId}`, 'POST', { text: e.key });
+    setTimeout(refreshScreenshot, 250);
+  });
+
+  // Mobile / IME Input Listener on hidden input
+  $('vp-hidden-input').addEventListener('input', async e => {
+    if (!state.activeId) return;
+    if (e.data) {
+      await api(`/api/browser/type?id=${state.activeId}`, 'POST', { text: e.data });
+      $('vp-hidden-input').value = '';
       setTimeout(refreshScreenshot, 250);
     }
   });

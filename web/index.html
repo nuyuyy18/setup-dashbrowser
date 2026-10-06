@@ -145,16 +145,19 @@
         </div>
 
         <!-- Emulation Bar: Keyboard & Typing -->
-        <div class="h-7 border-b border-white/[0.05] bg-black/20 px-3 flex items-center gap-2 shrink-0 text-xs">
+        <div class="h-7 border-b border-white/[0.05] bg-black/20 px-3 flex items-center gap-2 shrink-0 text-xs hidden">
           <span class="text-[10.5px] text-white/45 shrink-0">Ketik di halaman:</span>
           <input type="text" id="vp-type-input" placeholder="Ketik teks lalu tekan Enter..." class="flex-1 max-w-md bg-black/40 border border-white/[0.06] rounded px-2 h-5 text-xs text-white focus:outline-none focus:border-[#0A84FF]">
           <button id="btn-vp-send-text" class="mac-btn h-5 px-2 text-[10px]">Kirim</button>
           <button id="btn-vp-send-enter" class="mac-btn h-5 px-2 text-[10px]">Enter ⏎</button>
+          <button id="btn-vp-send-backspace" class="mac-btn h-5 px-2 text-[10px] text-rose-300 hover:text-rose-200">⌫ Hapus</button>
+          <button id="btn-vp-clear-input" class="mac-btn h-5 px-2 text-[10px] text-amber-300 hover:text-amber-200">Bersihkan Kolom</button>
           <span id="vp-loading-badge" class="hidden text-[10px] text-blue-400 font-mono animate-pulse">Menghubungkan...</span>
         </div>
 
         <!-- Viewport Display Container -->
-        <div id="viewport-wrapper" class="flex-1 w-full bg-black relative flex items-center justify-center overflow-hidden cursor-crosshair">
+        <div id="viewport-wrapper" tabindex="0" class="flex-1 w-full bg-black relative flex items-center justify-center overflow-hidden cursor-crosshair focus:outline-none">
+          <input type="text" id="vp-hidden-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" class="absolute opacity-0 pointer-events-none -top-10 left-0 w-1 h-1">
           <img id="vp-screen" class="max-w-full max-h-full object-contain select-none" alt="">
           <div id="vp-click-ripple" class="absolute w-5 h-5 rounded-full border border-emerald-400 pointer-events-none scale-0 transition-transform duration-200 -translate-x-1/2 -translate-y-1/2"></div>
           
