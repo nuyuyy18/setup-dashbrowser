@@ -217,8 +217,8 @@ async function injectCookies(profileId, cookies, navigateUrl = null) {
 async function screenshot(profileId) {
   const s = sessions.get(profileId);
   if (!s) throw new Error('Browser not running');
-  // Lower quality for faster transmission
-  return s.page.screenshot({ type: 'jpeg', quality: 20, timeout: 5000 });
+  // High Definition (HD) screenshot quality
+  return s.page.screenshot({ type: 'jpeg', quality: 90, timeout: 5000 });
 }
 
 async function click(profileId, x, y) {
