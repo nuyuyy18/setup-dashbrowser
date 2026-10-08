@@ -127,7 +127,7 @@ async function launch(profile) {
   try {
     ctx = await chromium.launchPersistentContext(userDir, {
       executablePath: getChromeExecutable(),
-      headless: true,
+      headless: process.env.HEADLESS !== 'false',
       args,
       proxy: proxyConfig,
       viewport: { width: 1280, height: 800 },

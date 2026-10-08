@@ -98,6 +98,7 @@ async function main() {
     '--no-first-run',
     '--no-default-browser-check',
     '--disable-blink-features=AutomationControlled',
+    '--disable-infobars',
     bundle.startUrl || 'https://www.google.com'
   ];
 
