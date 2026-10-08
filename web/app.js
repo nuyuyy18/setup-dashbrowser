@@ -492,8 +492,8 @@ function initEvents() {
       const res = await api(`/api/browser/click?id=${state.activeId}`, 'POST', { x, y });
       if (res.url) $('vp-url-input').value = res.url;
       // Beri sedikit jeda agar animasi klik/komentar Instagram selesai sebelum screenshot diambil
-      setTimeout(refreshScreenshot, 400);
-      setTimeout(refreshScreenshot, 900);
+      setTimeout(refreshScreenshot, 100);
+      setTimeout(refreshScreenshot, 600);
     } catch (e) {
       console.error('Click error', e);
     }
@@ -605,6 +605,9 @@ function initEvents() {
     }
   }, { passive: false });
 
+  // Arah Scroll untuk Swipe Mobile 
+  // Jika jari bergerak naik (currentY < touchStartY), ini berarti usapan ke ATAS, halaman harus SCROLL BAWAH (deltaY POSITIF).
+  // Jika jari bergerak turun (currentY > touchStartY), ini berarti usapan ke BAWAH, halaman harus SCROLL ATAS (deltaY NEGATIF).
   $('viewport-wrapper').addEventListener('touchmove', e => {
     if (!state.activeId || e.touches.length !== 1) return;
     
@@ -612,11 +615,17 @@ function initEvents() {
     e.preventDefault();
 
     const currentY = e.touches[0].clientY;
-    const diffY = touchStartY - currentY;
+    const diffY = touchStartY - currentY; // Positif = usap atas (mau scroll ke bawah)
     
-    if (Math.abs(diffY) > 5) {
-      pendingScrollY += (diffY * 2);
+    // Agar perpindahan Reels tidak 'membentul/meloncat mundur' akibat akumulasi panjang, kita gunakan delta statis yang kuat per gesekan
+    if (Math.abs(diffY) > 15) {
+      // 300px cukup untuk memicu mekanisme pindah Reel berikutnya di Instagram
+      const simulateDelta = diffY > 0 ? 450 : -450; 
+      pendingScrollY += simulateDelta;
+      
+      // Reset touch start agar tidak menumpuk berkali-kali dalam 1 gesekan
       touchStartY = currentY;
+      
       const coords = getScaledCoords(e.touches[0].clientX, e.touches[0].clientY);
       lastScrollX = coords.x;
       lastScrollY = coords.y;
@@ -625,7 +634,7 @@ function initEvents() {
         scrollTimeout = setTimeout(() => {
           flushScroll();
           scrollTimeout = null;
-        }, 50);
+        }, 150);
       }
     }
   }, { passive: false });
