@@ -1,7 +1,9 @@
 const { execSync } = require('child_process');
 const path = require('path');
 const fs = require('fs');
-const { chromium } = require('playwright-core');
+const { chromium } = require('playwright-extra');
+const stealth = require('puppeteer-extra-plugin-stealth')();
+chromium.use(stealth);
 
 function getChromeExecutable() {
   if (process.platform === 'win32') {
@@ -94,7 +96,7 @@ async function launch(profile) {
   const userDir = path.join(DATA_DIR, profile.id);
   if (!fs.existsSync(userDir)) fs.mkdirSync(userDir, { recursive: true });
 
-  const userAgent = profile.userAgent || DEFAULT_USER_AGENT;
+  const userAgent = profile.userAgent || undefined;
   const vpnNode = (profile.vpnNode || 'indonesia').toLowerCase();
   
   if (profile.useVpn !== false) {
@@ -103,21 +105,11 @@ async function launch(profile) {
 
   const args = [
     '--no-sandbox',
-    '--disable-gpu',
-    '--disable-software-rasterizer',
     '--disable-dev-shm-usage',
     '--mute-audio',
     '--autoplay-policy=document-user-activation-required',
-    '--disable-background-networking',
-    '--disable-breakpad',
-    '--disable-component-update',
-    '--disable-default-apps',
-    '--disable-domain-reliability',
-    '--disable-sync',
     '--no-first-run',
     '--lang=id-ID,id,en-US,en',
-    '--metrics-recording-only',
-    '--js-flags=--max-old-space-size=256',
     '--hide-scrollbars',
     '--disable-blink-features=AutomationControlled'
   ];
@@ -133,16 +125,19 @@ async function launch(profile) {
 
   let ctx, page;
   try {
-    ctx = await chromium.launchPersistentContext(userDir, {
+    // Only pass userAgent if explicitly set, else rely on native Chrome version to bypass Client Hints mismatch
+    const launchOptions = {
       executablePath: getChromeExecutable(),
-      headless: true,
+      headless: process.env.HEADLESS !== 'false',
       args,
       proxy: proxyConfig,
       viewport: { width: 1280, height: 800 },
-      userAgent,
       locale: 'id-ID',
       timezoneId: 'Asia/Jakarta'
-    });
+    };
+    if (userAgent) launchOptions.userAgent = userAgent;
+
+    ctx = await chromium.launchPersistentContext(userDir, launchOptions);
 
     if (profile.cookies && Array.isArray(profile.cookies) && profile.cookies.length > 0) {
       try { await ctx.addCookies(profile.cookies); } catch (e) {}
@@ -150,6 +145,50 @@ async function launch(profile) {
 
     const pages = ctx.pages();
     page = pages[0] || await ctx.newPage();
+
+    // Universal Anti-Detection & reCAPTCHA / Cloudflare bypass script
+    await ctx.addInitScript(() => {
+      // 1. Remove automation flags
+      Object.defineProperty(navigator, 'webdriver', { get: () => undefined });
+      delete navigator.__proto__.webdriver;
+
+      // 2. Realistic plugins array
+      Object.defineProperty(navigator, 'plugins', {
+        get: () => [
+          { name: 'Chrome PDF Plugin', filename: 'internal-pdf-viewer', description: 'Portable Document Format' },
+          { name: 'Chrome PDF Viewer', filename: 'mhjfbmdgcfjbbpaeojofohoefgiehjai', description: '' },
+          { name: 'Native Client', filename: 'internal-nacl-plugin', description: '' }
+        ]
+      });
+
+      // 3. Realistic languages
+      Object.defineProperty(navigator, 'languages', {
+        get: () => ['id-ID', 'id', 'en-US', 'en']
+      });
+
+      // 4. Mimic genuine window.chrome
+      window.chrome = {
+        app: { isInstalled: false, InstallState: { DISABLED: 'DISABLED', INSTALLED: 'INSTALLED', NOT_INSTALLED: 'NOT_INSTALLED' }, RunningState: { CANNOT_RUN: 'CANNOT_RUN', READY_TO_RUN: 'READY_TO_RUN', RUNNING: 'RUNNING' } },
+        runtime: { OnInstalledReason: { CHROME_UPDATE: 'chrome_update', INSTALL: 'install', SHARED_MODULE_UPDATE: 'shared_module_update', UPDATE: 'update' }, OnRestartRequiredReason: { APP_UPDATE: 'app_update', OS_UPDATE: 'os_update', PERIODIC: 'periodic' }, PlatformArch: { ARM: 'arm', ARM64: 'arm64', MIPS: 'mips', MIPS64: 'mips64', X86_32: 'x86-32', X86_64: 'x86-64' }, PlatformNaclArch: { ARM: 'arm', MIPS: 'mips', MIPS64: 'mips64', X86_32: 'x86-32', X86_64: 'x86-64' }, PlatformOs: { ANDROID: 'android', CROS: 'cros', LINUX: 'linux', MAC: 'mac', OPENBSD: 'openbsd', WIN: 'win' }, RequestUpdateCheckStatus: { NO_UPDATE: 'no_update', THROTTLED: 'throttled', UPDATE_AVAILABLE: 'update_available' } }
+      };
+
+      // 5. Realistic permissions query
+      const originalQuery = window.navigator.permissions.query;
+      window.navigator.permissions.query = parameters => (
+        parameters.name === 'notifications' ?
+          Promise.resolve({ state: Notification.permission }) :
+          originalQuery(parameters)
+      );
+
+      // 6. Realistic WebGL vendor/renderer spoofing (Intel/Nvidia desktop)
+      const getParameter = WebGLRenderingContext.prototype.getParameter;
+      WebGLRenderingContext.prototype.getParameter = function(parameter) {
+        if (parameter === 37445) return 'Google Inc. (NVIDIA)';
+        if (parameter === 37446) return 'ANGLE (NVIDIA, NVIDIA GeForce GTX 1650 Direct3D11 vs_5_0 ps_5_0, D3D11)';
+        return getParameter.apply(this, [parameter]);
+      };
+    });
+
     // Viewport size matching desktop browser
     await page.setViewportSize({ width: 1280, height: 800 });
     

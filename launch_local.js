@@ -7,7 +7,9 @@ const { spawn } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
-const { chromium } = require('playwright-core');
+const { chromium } = require('playwright-extra');
+const stealth = require('puppeteer-extra-plugin-stealth')();
+chromium.use(stealth);
 
 function findLocalBrowser() {
   const plat = process.platform;
@@ -95,6 +97,8 @@ async function main() {
     `--user-data-dir=${userDir}`,
     '--no-first-run',
     '--no-default-browser-check',
+    '--disable-blink-features=AutomationControlled',
+    '--disable-infobars',
     bundle.startUrl || 'https://www.google.com'
   ];
 
