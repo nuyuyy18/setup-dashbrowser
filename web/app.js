@@ -464,7 +464,7 @@ function initEvents() {
     if (!state.activeId) return;
     const rect = $('vp-screen').getBoundingClientRect();
     const scaleX = 1280 / rect.width;
-    const scaleY = 950 / rect.height;
+    const scaleY = 750 / rect.height;
     
     // Check if click is actually inside the image bounds
     if (e.clientX < rect.left || e.clientX > rect.right || e.clientY < rect.top || e.clientY > rect.bottom) {
@@ -572,20 +572,33 @@ function initEvents() {
   function getScaledCoords(clientX, clientY) {
     const rect = $('vp-screen').getBoundingClientRect();
     const scaleX = 1280 / rect.width;
-    const scaleY = 950 / rect.height;
+    const scaleY = 750 / rect.height;
     const x = Math.max(0, Math.min(1280, Math.round((clientX - rect.left) * scaleX)));
-    const y = Math.max(0, Math.min(950, Math.round((clientY - rect.top) * scaleY)));
+    const y = Math.max(0, Math.min(750, Math.round((clientY - rect.top) * scaleY)));
     return { x, y };
   }
 
   // Mouse Wheel Scroll Emulation
   $('viewport-wrapper').addEventListener('wheel', e => {
     if (!state.activeId) return;
-    pendingScrollY += e.deltaY;
     const coords = getScaledCoords(e.clientX, e.clientY);
     lastScrollX = coords.x;
     lastScrollY = coords.y;
 
+    const url = $('vp-url-input').value || '';
+    // Jika sedang di halaman Reels dan kursor berada di area video (bukan di panel komentar x > 950)
+    if (url.includes('/reels/') && coords.x < 950) {
+      const key = e.deltaY > 0 ? 'ArrowDown' : 'ArrowUp';
+      if (!scrollTimeout) {
+        scrollTimeout = setTimeout(() => {
+          api(`/api/browser/key?id=${state.activeId}`, 'POST', { key }).then(refreshScreenshot);
+          scrollTimeout = null;
+        }, 120);
+      }
+      return;
+    }
+
+    pendingScrollY += e.deltaY;
     if (!scrollTimeout) {
       scrollTimeout = setTimeout(() => {
         flushScroll();
@@ -606,8 +619,6 @@ function initEvents() {
   }, { passive: false });
 
   // Arah Scroll untuk Swipe Mobile 
-  // Jika jari bergerak naik (currentY < touchStartY), ini berarti usapan ke ATAS, halaman harus SCROLL BAWAH (deltaY POSITIF).
-  // Jika jari bergerak turun (currentY > touchStartY), ini berarti usapan ke BAWAH, halaman harus SCROLL ATAS (deltaY NEGATIF).
   $('viewport-wrapper').addEventListener('touchmove', e => {
     if (!state.activeId || e.touches.length !== 1) return;
     
@@ -617,25 +628,31 @@ function initEvents() {
     const currentY = e.touches[0].clientY;
     const diffY = touchStartY - currentY; // Positif = usap atas (mau scroll ke bawah)
     
-    // Agar perpindahan Reels tidak 'membentul/meloncat mundur' akibat akumulasi panjang, kita gunakan delta statis yang kuat per gesekan
-    if (Math.abs(diffY) > 15) {
-      // 300px cukup untuk memicu mekanisme pindah Reel berikutnya di Instagram
-      const simulateDelta = diffY > 0 ? 450 : -450; 
-      pendingScrollY += simulateDelta;
-      
-      // Reset touch start agar tidak menumpuk berkali-kali dalam 1 gesekan
-      touchStartY = currentY;
-      
+    // Cukup usapan ringan (> 8px) tanpa perlu tenaga
+    if (Math.abs(diffY) > 8) {
       const coords = getScaledCoords(e.touches[0].clientX, e.touches[0].clientY);
       lastScrollX = coords.x;
       lastScrollY = coords.y;
-      
-      if (!scrollTimeout) {
-        scrollTimeout = setTimeout(() => {
-          flushScroll();
-          scrollTimeout = null;
-        }, 150);
+      const url = $('vp-url-input').value || '';
+
+      // Jika di reels dan bukan di panel komentar, gunakan navigasi mulus ArrowDown/ArrowUp
+      if (url.includes('/reels/') && coords.x < 950) {
+        const key = diffY > 0 ? 'ArrowDown' : 'ArrowUp';
+        api(`/api/browser/key?id=${state.activeId}`, 'POST', { key })
+          .then(() => setTimeout(refreshScreenshot, 150))
+          .catch(() => {});
+      } else {
+        const simulateDelta = diffY > 0 ? 350 : -350; 
+        pendingScrollY += simulateDelta;
+        if (!scrollTimeout) {
+          scrollTimeout = setTimeout(() => {
+            flushScroll();
+            scrollTimeout = null;
+          }, 80);
+        }
       }
+      
+      touchStartY = currentY;
     }
   }, { passive: false });
 
