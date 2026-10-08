@@ -289,10 +289,17 @@ function getStatus(profileId) {
   return s ? { running: true, url: s.page.url(), title: s.title, vpnNode: s.vpnNode } : { running: false };
 }
 
-async function scroll(profileId, deltaY) {
+async function scroll(profileId, deltaY, x, y) {
   const s = sessions.get(profileId);
   if (!s) throw new Error('Browser not running');
   s.lastActive = Date.now();
+  
+  // Jika koordinat kursor diberikan, pindahkan mouse ke titik tersebut terlebih dahulu
+  // agar scroll terjadi tepat di atas elemen tersebut (misalnya kolom komentar modal Instagram)
+  if (x !== undefined && y !== undefined) {
+    await s.page.mouse.move(x, y);
+  }
+  
   await s.page.mouse.wheel(0, deltaY);
   return { ok: true };
 }

@@ -115,7 +115,7 @@ const server = http.createServer(async (req, res) => {
     if (p === '/api/browser/key' && req.method === 'POST') { const b = await readBody(req); return json(res, 200, await bm.keyPress(id, b.key)); }
     if (p === '/api/browser/scroll' && req.method === 'POST') { 
       const b = await readBody(req); 
-      await bm.scroll(id, Number(b.deltaY) || 300);
+      await bm.scroll(id, Number(b.deltaY) || 300, b.x, b.y);
       return json(res, 200, { ok: true }); 
     }
 

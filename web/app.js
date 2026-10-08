@@ -557,20 +557,35 @@ function initEvents() {
   // Accumulated Scroll Emulation (Prevent HTTP flood)
   let pendingScrollY = 0;
   let scrollTimeout = null;
+  let lastScrollX = 640;
+  let lastScrollY = 400;
 
   function flushScroll() {
     if (!state.activeId || pendingScrollY === 0) return;
     const sendY = pendingScrollY;
     pendingScrollY = 0;
-    api(`/api/browser/scroll?id=${state.activeId}`, 'POST', { deltaY: sendY })
+    api(`/api/browser/scroll?id=${state.activeId}`, 'POST', { deltaY: sendY, x: lastScrollX, y: lastScrollY })
       .then(refreshScreenshot)
       .catch(() => {});
+  }
+
+  function getScaledCoords(clientX, clientY) {
+    const rect = $('vp-screen').getBoundingClientRect();
+    const scaleX = 1280 / rect.width;
+    const scaleY = 800 / rect.height;
+    const x = Math.max(0, Math.min(1280, Math.round((clientX - rect.left) * scaleX)));
+    const y = Math.max(0, Math.min(800, Math.round((clientY - rect.top) * scaleY)));
+    return { x, y };
   }
 
   // Mouse Wheel Scroll Emulation
   $('viewport-wrapper').addEventListener('wheel', e => {
     if (!state.activeId) return;
     pendingScrollY += e.deltaY;
+    const coords = getScaledCoords(e.clientX, e.clientY);
+    lastScrollX = coords.x;
+    lastScrollY = coords.y;
+
     if (!scrollTimeout) {
       scrollTimeout = setTimeout(() => {
         flushScroll();
@@ -584,6 +599,9 @@ function initEvents() {
   $('viewport-wrapper').addEventListener('touchstart', e => {
     if (e.touches.length === 1) {
       touchStartY = e.touches[0].clientY;
+      const coords = getScaledCoords(e.touches[0].clientX, e.touches[0].clientY);
+      lastScrollX = coords.x;
+      lastScrollY = coords.y;
     }
   }, { passive: true });
 
@@ -593,8 +611,11 @@ function initEvents() {
     const diffY = touchStartY - currentY;
     
     if (Math.abs(diffY) > 5) {
-      pendingScrollY += (diffY * 1.5);
+      pendingScrollY += (diffY * 2);
       touchStartY = currentY;
+      const coords = getScaledCoords(e.touches[0].clientX, e.touches[0].clientY);
+      lastScrollX = coords.x;
+      lastScrollY = coords.y;
       
       if (!scrollTimeout) {
         scrollTimeout = setTimeout(() => {
