@@ -603,10 +603,14 @@ function initEvents() {
       lastScrollX = coords.x;
       lastScrollY = coords.y;
     }
-  }, { passive: true });
+  }, { passive: false });
 
   $('viewport-wrapper').addEventListener('touchmove', e => {
     if (!state.activeId || e.touches.length !== 1) return;
+    
+    // Cegah perilaku browser bawaan (pull to refresh) agar tidak tabrakan dengan scroll emulator
+    e.preventDefault();
+
     const currentY = e.touches[0].clientY;
     const diffY = touchStartY - currentY;
     
@@ -624,7 +628,7 @@ function initEvents() {
         }, 50);
       }
     }
-  }, { passive: true });
+  }, { passive: false });
 
   // Single Cookie Inject Modal
   $('btn-top-inject').onclick = () => {
