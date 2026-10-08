@@ -491,9 +491,10 @@ function initEvents() {
     try {
       const res = await api(`/api/browser/click?id=${state.activeId}`, 'POST', { x, y });
       if (res.url) $('vp-url-input').value = res.url;
-      // Beri sedikit jeda agar animasi klik/komentar Instagram selesai sebelum screenshot diambil
-      setTimeout(refreshScreenshot, 100);
+      // Perpanjang jeda klik modal agar emoji drawer atau list selector punya waktu terbuka
+      setTimeout(refreshScreenshot, 150);
       setTimeout(refreshScreenshot, 600);
+      setTimeout(refreshScreenshot, 1200);
     } catch (e) {
       console.error('Click error', e);
     }

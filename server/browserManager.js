@@ -280,7 +280,12 @@ async function type(profileId, text) {
   const s = sessions.get(profileId);
   if (!s) throw new Error('Browser not running');
   s.lastActive = Date.now();
-  await s.page.keyboard.type(text);
+  try {
+    // insertText mendukung emoji (UTF-16 surrogate pairs) dan karakter khusus langsung
+    await s.page.keyboard.insertText(text);
+  } catch (err) {
+    await s.page.keyboard.type(text);
+  }
   return { ok: true };
 }
 
