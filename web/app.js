@@ -460,17 +460,23 @@ function initEvents() {
   };
 
   // Instant Click Emulation
-  $('vp-screen').onclick = async e => {
+  $('viewport-wrapper').onclick = async e => {
     if (!state.activeId) return;
     const rect = $('vp-screen').getBoundingClientRect();
     const scaleX = 1280 / rect.width;
     const scaleY = 800 / rect.height;
+    
+    // Check if click is actually inside the image bounds
+    if (e.clientX < rect.left || e.clientX > rect.right || e.clientY < rect.top || e.clientY > rect.bottom) {
+      return; // Ignore clicks in the black padding area
+    }
+    
     const x = Math.round((e.clientX - rect.left) * scaleX);
     const y = Math.round((e.clientY - rect.top) * scaleY);
 
     const rip = $('vp-click-ripple');
-    rip.style.left = `${e.clientX - rect.left}px`;
-    rip.style.top = `${e.clientY - rect.top}px`;
+    rip.style.left = `${e.clientX - $('viewport-wrapper').getBoundingClientRect().left}px`;
+    rip.style.top = `${e.clientY - $('viewport-wrapper').getBoundingClientRect().top}px`;
     rip.classList.remove('scale-0');
     rip.classList.add('scale-100');
     setTimeout(() => { rip.classList.remove('scale-100'); rip.classList.add('scale-0'); }, 180);
@@ -485,7 +491,9 @@ function initEvents() {
     try {
       const res = await api(`/api/browser/click?id=${state.activeId}`, 'POST', { x, y });
       if (res.url) $('vp-url-input').value = res.url;
-      refreshScreenshot();
+      // Beri sedikit jeda agar animasi klik/komentar Instagram selesai sebelum screenshot diambil
+      setTimeout(refreshScreenshot, 400);
+      setTimeout(refreshScreenshot, 900);
     } catch (e) {
       console.error('Click error', e);
     }
