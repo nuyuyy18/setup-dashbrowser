@@ -1,7 +1,9 @@
 const { execSync } = require('child_process');
 const path = require('path');
 const fs = require('fs');
-const { chromium } = require('playwright-core');
+const { chromium } = require('playwright-extra');
+const stealth = require('puppeteer-extra-plugin-stealth')();
+chromium.use(stealth);
 
 function getChromeExecutable() {
   if (process.platform === 'win32') {
@@ -103,21 +105,11 @@ async function launch(profile) {
 
   const args = [
     '--no-sandbox',
-    '--disable-gpu',
-    '--disable-software-rasterizer',
     '--disable-dev-shm-usage',
     '--mute-audio',
     '--autoplay-policy=document-user-activation-required',
-    '--disable-background-networking',
-    '--disable-breakpad',
-    '--disable-component-update',
-    '--disable-default-apps',
-    '--disable-domain-reliability',
-    '--disable-sync',
     '--no-first-run',
     '--lang=id-ID,id,en-US,en',
-    '--metrics-recording-only',
-    '--js-flags=--max-old-space-size=256',
     '--hide-scrollbars',
     '--disable-blink-features=AutomationControlled'
   ];
