@@ -464,7 +464,7 @@ function initEvents() {
     if (!state.activeId) return;
     const rect = $('vp-screen').getBoundingClientRect();
     const scaleX = 1280 / rect.width;
-    const scaleY = 800 / rect.height;
+    const scaleY = 950 / rect.height;
     
     // Check if click is actually inside the image bounds
     if (e.clientX < rect.left || e.clientX > rect.right || e.clientY < rect.top || e.clientY > rect.bottom) {
@@ -572,9 +572,9 @@ function initEvents() {
   function getScaledCoords(clientX, clientY) {
     const rect = $('vp-screen').getBoundingClientRect();
     const scaleX = 1280 / rect.width;
-    const scaleY = 800 / rect.height;
+    const scaleY = 950 / rect.height;
     const x = Math.max(0, Math.min(1280, Math.round((clientX - rect.left) * scaleX)));
-    const y = Math.max(0, Math.min(800, Math.round((clientY - rect.top) * scaleY)));
+    const y = Math.max(0, Math.min(950, Math.round((clientY - rect.top) * scaleY)));
     return { x, y };
   }
 

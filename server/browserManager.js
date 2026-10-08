@@ -131,7 +131,7 @@ async function launch(profile) {
       headless: process.env.HEADLESS !== 'false',
       args,
       proxy: proxyConfig,
-      viewport: { width: 1280, height: 800 },
+      viewport: { width: 1280, height: 950 },
       locale: 'id-ID',
       timezoneId: 'Asia/Jakarta'
     };
@@ -189,8 +189,8 @@ async function launch(profile) {
       };
     });
 
-    // Viewport size matching desktop browser
-    await page.setViewportSize({ width: 1280, height: 800 });
+    // Viewport height 950 ensures entire Instagram Reel dialog and bottom comment input box are fully visible
+    await page.setViewportSize({ width: 1280, height: 950 });
     
     // Initial navigation
     const targetUrl = profile.startUrl || 'https://www.google.com';
