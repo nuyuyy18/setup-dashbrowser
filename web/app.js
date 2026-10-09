@@ -464,17 +464,15 @@ function initEvents() {
     if (!state.activeId) return;
     const rect = $('vp-screen').getBoundingClientRect();
     const scaleX = 1280 / rect.width;
-    const scaleY = 750 / rect.height;
+    const scaleY = 850 / rect.height;
     
     // Check if click is actually inside the image bounds
     if (e.clientX < rect.left || e.clientX > rect.right || e.clientY < rect.top || e.clientY > rect.bottom) {
       return; // Ignore clicks in the black padding area
     }
     
-    // Sesuaikan titik sentuh karena ada auto-zoom 85% di sisi server 
-    // Jadi koordinat klik dari klien harus dikompensasi agar tidak meleset saat mendarat di Instagram
-    const x = Math.round(((e.clientX - rect.left) * scaleX) / 0.85);
-    const y = Math.round(((e.clientY - rect.top) * scaleY) / 0.85);
+    const x = Math.round((e.clientX - rect.left) * scaleX);
+    const y = Math.round((e.clientY - rect.top) * scaleY);
 
     const rip = $('vp-click-ripple');
     rip.style.left = `${e.clientX - $('viewport-wrapper').getBoundingClientRect().left}px`;
@@ -575,9 +573,9 @@ function initEvents() {
   function getScaledCoords(clientX, clientY) {
     const rect = $('vp-screen').getBoundingClientRect();
     const scaleX = 1280 / rect.width;
-    const scaleY = 750 / rect.height;
-    const x = Math.max(0, Math.min(1280, Math.round(((clientX - rect.left) * scaleX) / 0.85)));
-    const y = Math.max(0, Math.min(750, Math.round(((clientY - rect.top) * scaleY) / 0.85)));
+    const scaleY = 850 / rect.height;
+    const x = Math.max(0, Math.min(1280, Math.round((clientX - rect.left) * scaleX)));
+    const y = Math.max(0, Math.min(850, Math.round((clientY - rect.top) * scaleY)));
     return { x, y };
   }
 

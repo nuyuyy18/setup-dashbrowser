@@ -131,8 +131,7 @@ async function launch(profile) {
       headless: process.env.HEADLESS !== 'false',
       args,
       proxy: proxyConfig,
-      viewport: { width: 1280, height: 750 },
-      deviceScaleFactor: 2, // Mengubah render jadi HD tajam di monitor/HP resolusi tinggi
+      viewport: { width: 1280, height: 850 },
       locale: 'id-ID',
       timezoneId: 'Asia/Jakarta'
     };
@@ -188,17 +187,10 @@ async function launch(profile) {
         if (parameter === 37446) return 'ANGLE (NVIDIA, NVIDIA GeForce GTX 1650 Direct3D11 vs_5_0 ps_5_0, D3D11)';
         return getParameter.apply(this, [parameter]);
       };
-
-      // 7. Auto Zoom Instagram content agar video Reels dan seluruh tombol interaksi pas di layar
-      window.addEventListener('DOMContentLoaded', () => {
-        if (window.location.hostname.includes('instagram.com')) {
-          document.body.style.zoom = '0.85';
-        }
-      });
     });
 
-    // Viewport height 750 ensures entire Instagram Reel dialog fits within standard laptop and mobile viewports
-    await page.setViewportSize({ width: 1280, height: 750 });
+    // Viewport height 850 ensures entire Instagram Reel dialog fits within standard laptop and mobile viewports
+    await page.setViewportSize({ width: 1280, height: 850 });
     
     // Initial navigation
     const targetUrl = profile.startUrl || 'https://www.google.com';
@@ -265,7 +257,7 @@ async function screenshot(profileId) {
   const s = sessions.get(profileId);
   if (!s) throw new Error('Browser not running');
   // High Definition (HD) screenshot quality
-  return s.page.screenshot({ type: 'jpeg', quality: 90, timeout: 5000 });
+  return s.page.screenshot({ type: 'jpeg', quality: 80, timeout: 5000 });
 }
 
 async function click(profileId, x, y) {
