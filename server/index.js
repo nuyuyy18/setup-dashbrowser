@@ -119,6 +119,25 @@ const server = http.createServer(async (req, res) => {
       return json(res, 200, { ok: true }); 
     }
 
+    // Google Sheets export webhook (Apps Script Web App)
+    if (p === '/api/logs/export-sheets' && req.method === 'POST') {
+      const body = await readBody(req);
+      if (!Array.isArray(body.rows)) return json(res, 400, { error: 'rows must be an array' });
+      const webhookUrl = 'https://script.google.com/macros/s/AKfycbzH-xT0qZYBmagmXS5HNbNmVjnprKWOu0gPedGy4qWsOgqoV53mChgbDoQC_7Kzpvmh6g/exec';
+      const response = await fetch(webhookUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ rows: body.rows })
+      });
+      const text = await response.text();
+      let result;
+      try { result = JSON.parse(text); } catch {
+        throw new Error(`Apps Script returned non-JSON response (HTTP ${response.status}); verify Web App deployment URL and access`);
+      }
+      if (!response.ok || result.ok !== true) throw new Error(result.error || `Apps Script HTTP ${response.status}`);
+      return json(res, 200, result);
+    }
+
     // Activity Logs / Tracking
     if (p === '/api/logs' && req.method === 'GET') return json(res, 200, store.getLogs());
     if (p === '/api/logs' && req.method === 'POST') return json(res, 200, store.saveLog(await readBody(req), id));

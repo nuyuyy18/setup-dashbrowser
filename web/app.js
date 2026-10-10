@@ -877,6 +877,32 @@ window.deleteLogItem = async function(id) {
   await refreshLogs();
 };
 
+  $('btn-export-logs').onclick = async () => {
+    const btn = $('btn-export-logs');
+    const originalText = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = 'Mengirim...';
+    const rows = (state.logs || []).map(log => ({
+      time: new Date(log.createdAt).toLocaleString('id-ID'),
+      account: log.accountName || '-',
+      action: log.action || '-',
+      url: log.postUrl || '',
+      note: log.note || '-',
+      status: log.status || 'Success'
+    }));
+
+    try {
+      const result = await api('/api/logs/export-sheets', 'POST', { rows });
+      btn.textContent = `Terkirim: ${result.sheetName}`;
+      setTimeout(() => { btn.textContent = originalText; }, 3000);
+    } catch (err) {
+      alert('Gagal mengirim ke Google Sheets: ' + err.message);
+      btn.textContent = originalText;
+    } finally {
+      btn.disabled = false;
+    }
+  };
+
 async function launchActive() {
   if (!state.activeId) return;
   const btn = $('btn-top-launch');
