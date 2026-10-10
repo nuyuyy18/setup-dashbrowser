@@ -462,15 +462,24 @@ function initEvents() {
   // Instant Click Emulation
   $('viewport-wrapper').onclick = async e => {
     if (!state.activeId) return;
-    const rect = $('vp-screen').getBoundingClientRect();
+    const img = $('vp-screen');
+    const rect = img.getBoundingClientRect();
     if (!rect.width || !rect.height) return;
 
-    const scaleX = 1280 / rect.width;
-    const scaleY = 850 / rect.height;
+    // Ambil ukuran dimensi rendering asli dari server (default fallback 1280x850)
+    const nativeW = img.naturalWidth || 1280;
+    const nativeH = img.naturalHeight || 850;
 
-    // Jangan clamp ke area layar: klik di tepi kanan/bawah gambar tetap perlu dipetakan tepat.
-    const x = Math.max(0, Math.min(1279, Math.floor((e.clientX - rect.left) * scaleX)));
-    const y = Math.max(0, Math.min(849, Math.floor((e.clientY - rect.top) * scaleY)));
+    // Batasi klik agar tepat berada di area render gambar Instagram
+    const clampedClientX = Math.max(rect.left, Math.min(rect.right, e.clientX));
+    const clampedClientY = Math.max(rect.top, Math.min(rect.bottom, e.clientY));
+
+    const relX = (clampedClientX - rect.left) / rect.width;
+    const relY = (clampedClientY - rect.top) / rect.height;
+
+    // Petakan secara proporsional ke lebar dan tinggi native viewport
+    const x = Math.max(0, Math.min(nativeW - 1, Math.round(relX * nativeW)));
+    const y = Math.max(0, Math.min(nativeH - 1, Math.round(relY * nativeH)));
 
     const rip = $('vp-click-ripple');
     rip.style.left = `${e.clientX - $('viewport-wrapper').getBoundingClientRect().left}px`;
@@ -489,10 +498,9 @@ function initEvents() {
     try {
       const res = await api(`/api/browser/click?id=${state.activeId}`, 'POST', { x, y });
       if (res.url) $('vp-url-input').value = res.url;
-      // Perpanjang jeda klik modal agar emoji drawer atau list selector punya waktu terbuka
-      setTimeout(refreshScreenshot, 150);
-      setTimeout(refreshScreenshot, 600);
-      setTimeout(refreshScreenshot, 1200);
+      setTimeout(refreshScreenshot, 100);
+      setTimeout(refreshScreenshot, 400);
+      setTimeout(refreshScreenshot, 900);
     } catch (e) {
       console.error('Click error', e);
     }
@@ -569,12 +577,16 @@ function initEvents() {
   }
 
   function getScaledCoords(clientX, clientY) {
-    const rect = $('vp-screen').getBoundingClientRect();
-    const scaleX = 1280 / rect.width;
-    const scaleY = 850 / rect.height;
-    const x = Math.max(0, Math.min(1279, Math.floor((clientX - rect.left) * scaleX)));
-    const y = Math.max(0, Math.min(849, Math.floor((clientY - rect.top) * scaleY)));
-    return { x, y };
+    const img = $('vp-screen');
+    const rect = img.getBoundingClientRect();
+    const nativeW = img.naturalWidth || 1280;
+    const nativeH = img.naturalHeight || 850;
+    const relX = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+    const relY = Math.max(0, Math.min(1, (clientY - rect.top) / rect.height));
+    return {
+      x: Math.min(nativeW - 1, Math.round(relX * nativeW)),
+      y: Math.min(nativeH - 1, Math.round(relY * nativeH))
+    };
   }
 
   // Mouse Wheel Scroll Emulation
