@@ -127,12 +127,13 @@ const server = http.createServer(async (req, res) => {
       const response = await fetch(webhookUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({ rows: body.rows })
+        body: JSON.stringify({ rows: body.rows }),
+        redirect: 'follow'
       });
       const text = await response.text();
       let result;
       try { result = JSON.parse(text); } catch {
-        throw new Error(`Apps Script returned non-JSON response (HTTP ${response.status}); verify Web App deployment URL and access`);
+        throw new Error(`Apps Script response non-JSON (HTTP ${response.status})`);
       }
       if (!response.ok || result.ok !== true) throw new Error(result.error || `Apps Script HTTP ${response.status}`);
       return json(res, 200, result);
