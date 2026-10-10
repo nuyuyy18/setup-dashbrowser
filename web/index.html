@@ -10,7 +10,7 @@
 <body class="bg-[#0d0e12] text-white h-screen w-screen flex flex-col font-sans select-none overflow-hidden">
 
   <!-- macOS Unified Header Toolbar -->
-  <header class="h-11 border-b border-white/[0.08] mac-blur px-3.5 flex items-center justify-between z-30 shrink-0 overflow-x-auto overflow-y-hidden gap-4">
+  <header class="h-11 border-b border-white/[0.08] mac-blur px-3.5 flex items-center justify-between z-40 shrink-0 overflow-x-auto overflow-y-hidden gap-4">
     <!-- Left: Window / Sidebar Controls -->
     <div class="flex items-center gap-3 shrink-0">
       <button id="btn-toggle-sidebar" class="mac-btn h-7 px-2 text-xs" title="Sembunyikan / Tampilkan Sidebar (⌘B)">
@@ -156,7 +156,7 @@
         </div>
 
         <!-- Viewport Display Container -->
-        <div id="viewport-wrapper" tabindex="0" class="flex-1 w-full bg-black relative flex items-center justify-center overflow-auto cursor-crosshair focus:outline-none overscroll-none touch-none p-1">
+        <div id="viewport-wrapper" tabindex="0" class="flex-1 w-full bg-black relative flex items-center justify-center overflow-auto cursor-crosshair focus:outline-none overscroll-none touch-none p-1 z-30">
           <input type="text" id="vp-hidden-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" class="absolute opacity-0 pointer-events-none -top-10 left-0 w-1 h-1">
           <img id="vp-screen" class="block select-none shadow-2xl [image-rendering:-webkit-optimize-contrast]" alt="">
           <div id="vp-click-ripple" class="absolute w-5 h-5 rounded-full border border-emerald-400 pointer-events-none scale-0 transition-transform duration-200 -translate-x-1/2 -translate-y-1/2"></div>
@@ -283,10 +283,10 @@
   </div>
 
   <!-- Flying Action Button (FAB) & Activity Drawer (Bottom Right) -->
-  <div id="fab-container" class="fixed bottom-8 right-4 z-40 flex flex-col items-end gap-2.5">
+  <div id="fab-container" class="fixed bottom-8 right-4 z-40 flex flex-col items-end gap-2.5 pointer-events-none">
     
     <!-- Logging Popover Sheet -->
-    <div id="fab-action-panel" class="fab-hidden mac-card mac-blur p-3.5 w-76 shadow-2xl border border-white/15 flex flex-col gap-2 text-xs">
+    <div id="fab-action-panel" class="fab-hidden mac-card mac-blur p-3.5 w-76 shadow-2xl border border-white/15 flex flex-col gap-2 text-xs pointer-events-auto">
       <div class="flex items-center justify-between border-b border-white/10 pb-1.5">
         <span class="font-medium text-white text-xs flex items-center gap-1.5">
           <span>📌</span> Catat Laporan Postingan
