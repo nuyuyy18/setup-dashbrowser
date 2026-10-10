@@ -465,16 +465,12 @@ function initEvents() {
     const rect = $('vp-screen').getBoundingClientRect();
     if (!rect.width || !rect.height) return;
 
-    // Toleransi klik di area padding hitam sekitar layar (clamp ke batas layar aktif)
-    const clampedClientX = Math.max(rect.left, Math.min(rect.right, e.clientX));
-    const clampedClientY = Math.max(rect.top, Math.min(rect.bottom, e.clientY));
-
     const scaleX = 1280 / rect.width;
     const scaleY = 850 / rect.height;
 
-    // Pastikan koordinat tetap dalam rentang 0 .. 1279 dan 0 .. 849 agar tombol di tepi layar selalu terjangkau
-    const x = Math.max(0, Math.min(1279, Math.round((clampedClientX - rect.left) * scaleX)));
-    const y = Math.max(0, Math.min(849, Math.round((clampedClientY - rect.top) * scaleY)));
+    // Jangan clamp ke area layar: klik di tepi kanan/bawah gambar tetap perlu dipetakan tepat.
+    const x = Math.max(0, Math.min(1279, Math.floor((e.clientX - rect.left) * scaleX)));
+    const y = Math.max(0, Math.min(849, Math.floor((e.clientY - rect.top) * scaleY)));
 
     const rip = $('vp-click-ripple');
     rip.style.left = `${e.clientX - $('viewport-wrapper').getBoundingClientRect().left}px`;
@@ -576,8 +572,8 @@ function initEvents() {
     const rect = $('vp-screen').getBoundingClientRect();
     const scaleX = 1280 / rect.width;
     const scaleY = 850 / rect.height;
-    const x = Math.max(0, Math.min(1280, Math.round((clientX - rect.left) * scaleX)));
-    const y = Math.max(0, Math.min(850, Math.round((clientY - rect.top) * scaleY)));
+    const x = Math.max(0, Math.min(1279, Math.floor((clientX - rect.left) * scaleX)));
+    const y = Math.max(0, Math.min(849, Math.floor((clientY - rect.top) * scaleY)));
     return { x, y };
   }
 
