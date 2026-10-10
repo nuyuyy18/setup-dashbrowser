@@ -605,8 +605,9 @@ function initEvents() {
     lastScrollY = coords.y;
 
     const url = $('vp-url-input').value || '';
-    // Jika sedang di halaman Reels dan kursor berada di area video (bukan di panel komentar x > 950)
-    if (url.includes('/reels/') && coords.x < 950) {
+    // Area komentar Reels mulai sekitar x=760 pada viewport 1280px.
+    // Hindari ArrowDown bila roda mouse berada di drawer komentar.
+    if (url.includes('/reels/') && coords.x < 760) {
       const key = e.deltaY > 0 ? 'ArrowDown' : 'ArrowUp';
       if (!scrollTimeout) {
         scrollTimeout = setTimeout(() => {
@@ -654,8 +655,8 @@ function initEvents() {
       lastScrollY = coords.y;
       const url = $('vp-url-input').value || '';
 
-      // Jika di reels dan bukan di panel komentar, gunakan navigasi mulus ArrowDown/ArrowUp
-      if (url.includes('/reels/') && coords.x < 950) {
+      // Drawer komentar Reels berada di kanan; mulai sekitar x=760.
+      if (url.includes('/reels/') && coords.x < 760) {
         const key = diffY > 0 ? 'ArrowDown' : 'ArrowUp';
         api(`/api/browser/key?id=${state.activeId}`, 'POST', { key })
           .then(() => setTimeout(refreshScreenshot, 150))
