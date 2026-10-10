@@ -240,6 +240,14 @@ async function refreshScreenshot() {
 
   tempImg.onload = () => {
     img.src = tempImg.src;
+    const wrapper = $('viewport-wrapper');
+    const viewportWidth = 1280;
+    const viewportHeight = 850;
+    const availableWidth = Math.max(1, wrapper.clientWidth - 8);
+    const availableHeight = Math.max(1, wrapper.clientHeight - 8);
+    const scale = Math.min(availableWidth / viewportWidth, availableHeight / viewportHeight);
+    img.style.width = `${Math.round(viewportWidth * scale)}px`;
+    img.style.height = `${Math.round(viewportHeight * scale)}px`;
     state.isRefreshingScreenshot = false;
   };
   tempImg.onerror = () => {
@@ -466,7 +474,7 @@ function initEvents() {
     const rect = img.getBoundingClientRect();
     if (!rect.width || !rect.height) return;
 
-    // Ambil ukuran dimensi rendering asli dari server (default fallback 1280x850)
+    // Map based on the image's actual displayed bounds and native screenshot size.
     const nativeW = img.naturalWidth || 1280;
     const nativeH = img.naturalHeight || 850;
 
