@@ -463,16 +463,18 @@ function initEvents() {
   $('viewport-wrapper').onclick = async e => {
     if (!state.activeId) return;
     const rect = $('vp-screen').getBoundingClientRect();
+    if (!rect.width || !rect.height) return;
+
+    // Toleransi klik di area padding hitam sekitar layar (clamp ke batas layar aktif)
+    const clampedClientX = Math.max(rect.left, Math.min(rect.right, e.clientX));
+    const clampedClientY = Math.max(rect.top, Math.min(rect.bottom, e.clientY));
+
     const scaleX = 1280 / rect.width;
     const scaleY = 850 / rect.height;
-    
-    // Check if click is actually inside the image bounds
-    if (e.clientX < rect.left || e.clientX > rect.right || e.clientY < rect.top || e.clientY > rect.bottom) {
-      return; // Ignore clicks in the black padding area
-    }
-    
-    const x = Math.round((e.clientX - rect.left) * scaleX);
-    const y = Math.round((e.clientY - rect.top) * scaleY);
+
+    // Pastikan koordinat tetap dalam rentang 0 .. 1279 dan 0 .. 849 agar tombol di tepi layar selalu terjangkau
+    const x = Math.max(0, Math.min(1279, Math.round((clampedClientX - rect.left) * scaleX)));
+    const y = Math.max(0, Math.min(849, Math.round((clampedClientY - rect.top) * scaleY)));
 
     const rip = $('vp-click-ripple');
     rip.style.left = `${e.clientX - $('viewport-wrapper').getBoundingClientRect().left}px`;
