@@ -877,7 +877,7 @@ window.deleteLogItem = async function(id) {
   await refreshLogs();
 };
 
-  async function sendLogsToSheets(logsToSend, buttonEl, labelSuccess) {
+  async function sendLogsToSheets(logsToSend, buttonEl, mode = 'append') {
     if (!logsToSend || logsToSend.length === 0) {
       alert('Tidak ada data laporan yang dapat dikirim.');
       return;
@@ -896,7 +896,7 @@ window.deleteLogItem = async function(id) {
     }));
 
     try {
-      const result = await api('/api/logs/export-sheets', 'POST', { rows });
+      const result = await api('/api/logs/export-sheets', 'POST', { rows, mode });
       buttonEl.textContent = `Terkirim: ${result.sheetName} (${rows.length} Data)`;
       setTimeout(() => { buttonEl.textContent = originalText; }, 3000);
     } catch (err) {
@@ -907,7 +907,7 @@ window.deleteLogItem = async function(id) {
     }
   }
 
-  // Tombol Kirim Laporan Hari Ini
+  // Tombol Kirim Laporan Hari Ini: tambahkan ke sheet yang sudah ada
   $('btn-export-today').onclick = () => {
     const now = new Date();
     const startToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
@@ -916,12 +916,12 @@ window.deleteLogItem = async function(id) {
       const created = Date.parse(log.createdAt);
       return Number.isFinite(created) && created >= startToday && created < endToday;
     });
-    sendLogsToSheets(todayLogs, $('btn-export-today'), 'Laporan Hari Ini');
+    sendLogsToSheets(todayLogs, $('btn-export-today'), 'append');
   };
 
-  // Tombol Kirim Semua Laporan
+  // Tombol Kirim Semua Laporan: buat sheet baru berurutan
   $('btn-export-logs').onclick = () => {
-    sendLogsToSheets(state.logs || [], $('btn-export-logs'), 'Semua Laporan');
+    sendLogsToSheets(state.logs || [], $('btn-export-logs'), 'new_sheet');
   };
 
 async function launchActive() {
