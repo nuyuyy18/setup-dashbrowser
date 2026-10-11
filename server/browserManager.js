@@ -124,6 +124,7 @@ async function launch(profile) {
   }
 
   let ctx, page;
+  let session = null;
   try {
     // Only pass userAgent if explicitly set, else rely on native Chrome version to bypass Client Hints mismatch
     const launchOptions = {
@@ -145,6 +146,16 @@ async function launch(profile) {
 
     const pages = ctx.pages();
     page = pages[0] || await ctx.newPage();
+
+    // Track active page across popup/redirect (Threads login with Instagram opens popup/new tab)
+    ctx.on('page', newP => {
+      if (!session) return;
+      session.page = newP;
+      newP.on('close', () => {
+        const remaining = ctx.pages();
+        if (remaining.length > 0) session.page = remaining[remaining.length - 1];
+      });
+    });
 
     // Universal Anti-Detection & reCAPTCHA / Cloudflare bypass script
     await ctx.addInitScript(() => {
@@ -204,15 +215,15 @@ async function launch(profile) {
     throw new Error('Failed to launch CloakBrowser: ' + err.message);
   }
 
-  const s = {
+  session = {
     ctx, page,
     url: page.url(),
     title: await page.title(),
     vpnNode,
     lastActive: Date.now()
   };
-  sessions.set(profile.id, s);
-  return { running: true, url: s.url, title: s.title };
+  sessions.set(profile.id, session);
+  return { running: true, url: session.url, title: session.title };
 }
 
 async function stop(profileId) {
