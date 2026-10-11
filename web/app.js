@@ -909,10 +909,12 @@ window.deleteLogItem = async function(id) {
 
   // Tombol Kirim Laporan Hari Ini
   $('btn-export-today').onclick = () => {
-    const todayStr = new Date().toDateString();
-    const todayLogs = (state.logs || []).filter(l => {
-      if (!l.createdAt) return false;
-      return new Date(l.createdAt).toDateString() === todayStr;
+    const now = new Date();
+    const startToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+    const endToday = startToday + 24 * 60 * 60 * 1000;
+    const todayLogs = (state.logs || []).filter(log => {
+      const created = Date.parse(log.createdAt);
+      return Number.isFinite(created) && created >= startToday && created < endToday;
     });
     sendLogsToSheets(todayLogs, $('btn-export-today'), 'Laporan Hari Ini');
   };
