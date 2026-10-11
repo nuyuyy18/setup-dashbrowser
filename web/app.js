@@ -877,12 +877,16 @@ window.deleteLogItem = async function(id) {
   await refreshLogs();
 };
 
-  $('btn-export-logs').onclick = async () => {
-    const btn = $('btn-export-logs');
-    const originalText = btn.textContent;
-    btn.disabled = true;
-    btn.textContent = 'Mengirim...';
-    const rows = (state.logs || []).map(log => ({
+  async function sendLogsToSheets(logsToSend, buttonEl, labelSuccess) {
+    if (!logsToSend || logsToSend.length === 0) {
+      alert('Tidak ada data laporan yang dapat dikirim.');
+      return;
+    }
+    const originalText = buttonEl.textContent;
+    buttonEl.disabled = true;
+    buttonEl.textContent = 'Mengirim...';
+
+    const rows = logsToSend.map(log => ({
       time: new Date(log.createdAt).toLocaleString('id-ID'),
       account: log.accountName || '-',
       action: log.action || '-',
@@ -893,14 +897,29 @@ window.deleteLogItem = async function(id) {
 
     try {
       const result = await api('/api/logs/export-sheets', 'POST', { rows });
-      btn.textContent = `Terkirim: ${result.sheetName}`;
-      setTimeout(() => { btn.textContent = originalText; }, 3000);
+      buttonEl.textContent = `Terkirim: ${result.sheetName} (${rows.length} Data)`;
+      setTimeout(() => { buttonEl.textContent = originalText; }, 3000);
     } catch (err) {
       alert('Gagal mengirim ke Google Sheets: ' + err.message);
-      btn.textContent = originalText;
+      buttonEl.textContent = originalText;
     } finally {
-      btn.disabled = false;
+      buttonEl.disabled = false;
     }
+  }
+
+  // Tombol Kirim Laporan Hari Ini
+  $('btn-export-today').onclick = () => {
+    const todayStr = new Date().toDateString();
+    const todayLogs = (state.logs || []).filter(l => {
+      if (!l.createdAt) return false;
+      return new Date(l.createdAt).toDateString() === todayStr;
+    });
+    sendLogsToSheets(todayLogs, $('btn-export-today'), 'Laporan Hari Ini');
+  };
+
+  // Tombol Kirim Semua Laporan
+  $('btn-export-logs').onclick = () => {
+    sendLogsToSheets(state.logs || [], $('btn-export-logs'), 'Semua Laporan');
   };
 
 async function launchActive() {
