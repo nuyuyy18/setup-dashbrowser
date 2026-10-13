@@ -604,16 +604,22 @@ function initEvents() {
     lastScrollX = coords.x;
     lastScrollY = coords.y;
 
-    const url = $('vp-url-input').value || '';
-    // Area komentar Reels mulai sekitar x=760 pada viewport 1280px.
-    // Hindari ArrowDown bila roda mouse berada di drawer komentar.
-    if (url.includes('/reels/') && coords.x < 760) {
+    // Di Instagram Reels:
+    // Video berada di x < 540.
+    // Drawer popup komentar berada di tengah/kanan (x >= 540 s/d x <= 950).
+    // Tombol next/prev Reels berada di paling kanan (x > 950).
+    // Jika scroll berada di area komentar (x >= 540), JANGAN kirim ArrowDown/ArrowUp ke Reels,
+    // melainkan kirim mouse wheel murni ke koordinat komentar tersebut agar daftar komentar bergulir lancar.
+    const isReelsPage = url.includes('/reels/');
+    const isVideoSwipeZone = isReelsPage && (coords.x < 540 || coords.x > 950);
+
+    if (isVideoSwipeZone) {
       const key = e.deltaY > 0 ? 'ArrowDown' : 'ArrowUp';
       if (!scrollTimeout) {
         scrollTimeout = setTimeout(() => {
           api(`/api/browser/key?id=${state.activeId}`, 'POST', { key }).then(refreshScreenshot);
           scrollTimeout = null;
-        }, 120);
+        }, 140);
       }
       return;
     }
@@ -623,7 +629,7 @@ function initEvents() {
       scrollTimeout = setTimeout(() => {
         flushScroll();
         scrollTimeout = null;
-      }, 50);
+      }, 40);
     }
   }, { passive: true });
 
@@ -655,20 +661,24 @@ function initEvents() {
       lastScrollY = coords.y;
       const url = $('vp-url-input').value || '';
 
-      // Drawer komentar Reels berada di kanan; mulai sekitar x=760.
-      if (url.includes('/reels/') && coords.x < 760) {
+      // Di Instagram Reels:
+      // Drawer komentar berada di x >= 540 s/d x <= 950.
+      const isReelsPage = url.includes('/reels/');
+      const isVideoSwipeZone = isReelsPage && (coords.x < 540 || coords.x > 950);
+
+      if (isVideoSwipeZone) {
         const key = diffY > 0 ? 'ArrowDown' : 'ArrowUp';
         api(`/api/browser/key?id=${state.activeId}`, 'POST', { key })
           .then(() => setTimeout(refreshScreenshot, 150))
           .catch(() => {});
       } else {
-        const simulateDelta = diffY > 0 ? 350 : -350; 
+        const simulateDelta = diffY > 0 ? 300 : -300;
         pendingScrollY += simulateDelta;
         if (!scrollTimeout) {
           scrollTimeout = setTimeout(() => {
             flushScroll();
             scrollTimeout = null;
-          }, 80);
+          }, 60);
         }
       }
       
