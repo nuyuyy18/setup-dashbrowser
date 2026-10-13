@@ -267,8 +267,8 @@ async function injectCookies(profileId, cookies, navigateUrl = null) {
 async function screenshot(profileId) {
   const s = sessions.get(profileId);
   if (!s) throw new Error('Browser not running');
-  // High Definition (HD) screenshot quality
-  return s.page.screenshot({ type: 'jpeg', quality: 80, timeout: 5000 });
+  // Higher-quality JPEG reduces text and UI blur while retaining manageable frame size.
+  return s.page.screenshot({ type: 'jpeg', quality: 92, timeout: 5000 });
 }
 
 async function click(profileId, x, y) {
