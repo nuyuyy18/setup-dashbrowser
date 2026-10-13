@@ -603,6 +603,7 @@ function initEvents() {
     const coords = getScaledCoords(e.clientX, e.clientY);
     lastScrollX = coords.x;
     lastScrollY = coords.y;
+    const url = $('vp-url-input').value || '';
 
     // Di Instagram Reels:
     // Video berada di x < 540.

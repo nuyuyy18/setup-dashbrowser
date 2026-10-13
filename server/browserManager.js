@@ -309,13 +309,19 @@ async function scroll(profileId, deltaY, x, y) {
   const s = sessions.get(profileId);
   if (!s) throw new Error('Browser not running');
   s.lastActive = Date.now();
-  
-  // Jika koordinat kursor diberikan, pindahkan mouse ke titik tersebut terlebih dahulu
-  // agar scroll terjadi tepat di atas elemen tersebut (misalnya kolom komentar modal Instagram)
-  if (x !== undefined && y !== undefined) {
-    await s.page.mouse.move(x, y);
-  }
-  
+
+  const targetX = Number.isFinite(Number(x)) ? Number(x) : 640;
+  const targetY = Number.isFinite(Number(y)) ? Number(y) : 400;
+  await s.page.mouse.move(targetX, targetY);
+
+  // Dispatch a real wheel event and a native mouse wheel fallback.
+  // Instagram comment drawers consume one of these depending on its current overlay state.
+  await s.page.evaluate(({ deltaY, x, y }) => {
+    const el = document.elementFromPoint(x, y);
+    if (el) el.dispatchEvent(new WheelEvent('wheel', {
+      deltaY, deltaMode: WheelEvent.DOM_DELTA_PIXEL, bubbles: true, cancelable: true
+    }));
+  }, { deltaY, x: targetX, y: targetY });
   await s.page.mouse.wheel(0, deltaY);
   return { ok: true };
 }
