@@ -127,7 +127,7 @@ const server = http.createServer(async (req, res) => {
       const response = await fetch(webhookUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({ rows: body.rows }),
+        body: JSON.stringify({ rows: body.rows, mode: body.mode, reportDate: body.reportDate }),
         redirect: 'follow'
       });
       const text = await response.text();

@@ -888,7 +888,7 @@ window.deleteLogItem = async function(id) {
   await refreshLogs();
 };
 
-  async function sendLogsToSheets(logsToSend, buttonEl, mode = 'append') {
+  async function sendLogsToSheets(logsToSend, buttonEl, mode = 'append', reportDate = null) {
     if (!logsToSend || logsToSend.length === 0) {
       alert('Tidak ada data laporan yang dapat dikirim.');
       return;
@@ -907,7 +907,7 @@ window.deleteLogItem = async function(id) {
     }));
 
     try {
-      const result = await api('/api/logs/export-sheets', 'POST', { rows, mode });
+      const result = await api('/api/logs/export-sheets', 'POST', { rows, mode, reportDate });
       buttonEl.textContent = `Terkirim: ${result.sheetName} (${rows.length} Data)`;
       setTimeout(() => { buttonEl.textContent = originalText; }, 3000);
     } catch (err) {
@@ -918,19 +918,21 @@ window.deleteLogItem = async function(id) {
     }
   }
 
-  // Tombol Kirim Laporan Kemarin: filter log H-1 lalu tambahkan ke sheet
+  // Tombol Kirim Laporan Kemarin: filter log H-1 lalu kirim ke sheet khusus kemarin
   $('btn-export-yesterday').onclick = () => {
     const now = new Date();
-    const startYesterday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1).getTime();
+    const yesterday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+    const startYesterday = yesterday.getTime();
     const endYesterday = startYesterday + 24 * 60 * 60 * 1000;
     const yestLogs = (state.logs || []).filter(log => {
       const created = Date.parse(log.createdAt);
       return Number.isFinite(created) && created >= startYesterday && created < endYesterday;
     });
-    sendLogsToSheets(yestLogs, $('btn-export-yesterday'), 'append');
+    const dateTag = `${yesterday.getDate()}-${yesterday.getMonth() + 1}-${yesterday.getFullYear()}`;
+    sendLogsToSheets(yestLogs, $('btn-export-yesterday'), 'append', dateTag);
   };
 
-  // Tombol Kirim Laporan Hari Ini: tambahkan ke sheet yang sudah ada
+  // Tombol Kirim Laporan Hari Ini: filter log hari ini lalu kirim ke sheet khusus hari ini
   $('btn-export-today').onclick = () => {
     const now = new Date();
     const startToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
@@ -939,7 +941,8 @@ window.deleteLogItem = async function(id) {
       const created = Date.parse(log.createdAt);
       return Number.isFinite(created) && created >= startToday && created < endToday;
     });
-    sendLogsToSheets(todayLogs, $('btn-export-today'), 'append');
+    const dateTag = `${now.getDate()}-${now.getMonth() + 1}-${now.getFullYear()}`;
+    sendLogsToSheets(todayLogs, $('btn-export-today'), 'append', dateTag);
   };
 
   // Tombol Kirim Semua Laporan: buat sheet baru berurutan
