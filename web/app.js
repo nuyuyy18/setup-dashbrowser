@@ -918,6 +918,18 @@ window.deleteLogItem = async function(id) {
     }
   }
 
+  // Tombol Kirim Laporan Kemarin: filter log H-1 lalu tambahkan ke sheet
+  $('btn-export-yesterday').onclick = () => {
+    const now = new Date();
+    const startYesterday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1).getTime();
+    const endYesterday = startYesterday + 24 * 60 * 60 * 1000;
+    const yestLogs = (state.logs || []).filter(log => {
+      const created = Date.parse(log.createdAt);
+      return Number.isFinite(created) && created >= startYesterday && created < endYesterday;
+    });
+    sendLogsToSheets(yestLogs, $('btn-export-yesterday'), 'append');
+  };
+
   // Tombol Kirim Laporan Hari Ini: tambahkan ke sheet yang sudah ada
   $('btn-export-today').onclick = () => {
     const now = new Date();
